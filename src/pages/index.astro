@@ -20,6 +20,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	body.landing-page {
 		margin: 0;
 		background: #08111f;
+		overflow: hidden;
+		overscroll-behavior: none;
 	}
 
 	body.landing-page main {
@@ -32,10 +34,22 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 <style>
 	.landing-main {
-		width: 100vw;
+		width: 100%;
 		min-height: 100vh;
 		height: 100vh;
 		overflow: hidden;
+		padding:
+			env(safe-area-inset-top, 0)
+			env(safe-area-inset-right, 0)
+			env(safe-area-inset-bottom, 0)
+			env(safe-area-inset-left, 0);
+	}
+
+	@supports (height: 100dvh) {
+		.landing-main {
+			height: 100dvh;
+			min-height: 100dvh;
+		}
 	}
 
 	@media (max-width: 720px) {
