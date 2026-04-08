@@ -1,4 +1,5 @@
 .hero-spline {
+  position: relative;
   width: 100%;
   height: 100%;
   min-height: inherit;
@@ -31,4 +32,95 @@
   background:
     radial-gradient(circle at 20% 20%, rgba(136, 193, 255, 0.32), transparent 28%),
     linear-gradient(160deg, rgba(7, 16, 32, 0.98), rgba(18, 34, 66, 0.92));
+}
+
+.hero-spline__mask {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-spline__mask--left-r {
+  top: clamp(48px, 12vh, 144px);
+  left: clamp(20px, 3vw, 56px);
+  width: clamp(112px, 9vw, 180px);
+  height: clamp(112px, 14vh, 220px);
+  background:
+    radial-gradient(
+      circle at 58% 44%,
+      rgba(206, 205, 204, 0.995) 0 52%,
+      rgba(206, 205, 204, 0.92) 72%,
+      rgba(206, 205, 204, 0) 100%
+    );
+  filter: blur(10px);
+}
+
+.hero-spline__wordmark {
+  position: absolute;
+  top: clamp(78px, 15vh, 176px);
+  left: clamp(72px, 10vw, 132px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(4px, 0.5vh, 10px);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hero-spline__wordmark-line {
+  margin: 0;
+}
+
+.hero-spline__topbar {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0) + 12px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hero-spline__topbar-shell {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: max-content;
+  overflow: visible;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+.hero-spline__topbar-dock-wrapper {
+  position: relative;
+  z-index: 3;
+  width: max-content;
+  overflow: visible;
+}
+
+.hero-spline__topbar-dock {
+  position: relative;
+  z-index: 3;
+  background: transparent;
+  overflow: visible;
+}
+
+@media (max-width: 820px) {
+  .hero-spline__mask--left-r {
+    display: none;
+  }
+
+  .hero-spline__wordmark {
+    top: calc(env(safe-area-inset-top, 0) + 78px);
+    left: clamp(14px, 4vw, 24px);
+    gap: 4px;
+  }
+
+  .hero-spline__topbar {
+    top: calc(env(safe-area-inset-top, 0) + 2px);
+  }
 }

@@ -1,12 +1,17 @@
 import Spline from '@splinetool/react-spline';
 import type { Application } from '@splinetool/runtime';
 
+import GlassTopBar from './GlassTopBar';
+import Shuffle from './reactbits/Shuffle';
 import '../styles/hero-3d.css';
 
-const MOBILE_CARD_SHIFT_X = -680;
-const MOBILE_CARD_SHIFT_Y = 300;
+const MOBILE_CARD_SHIFT_X = -580;
+const MOBILE_CARD_SHIFT_Y = 200;
 const MOBILE_CARD_SCALE = 0.9;
-const MOBILE_TEXT_CARD_IDS = [
+const MOBILE_ZOOM = 0.6;
+const DESKTOP_CARD_SCALE = 1.3;
+const DESKTOP_CARD_SHIFT_X = -180;
+const TEXT_CARD_IDS = [
   'b466418a-90c7-4f81-8d5d-ccac94581c67',
   '314875a3-8d8c-4bf0-a2bf-22a29436e018',
 ];
@@ -67,9 +72,9 @@ export default function Hero3D() {
     }
 
     if (isMobile) {
-      spline.setZoom(0.35);
+      spline.setZoom(MOBILE_ZOOM);
 
-      for (const objectId of MOBILE_TEXT_CARD_IDS) {
+      for (const objectId of TEXT_CARD_IDS) {
         transformObject(
           spline,
           objectId,
@@ -77,6 +82,10 @@ export default function Hero3D() {
           MOBILE_CARD_SHIFT_Y,
           MOBILE_CARD_SCALE,
         );
+      }
+    } else {
+      for (const objectId of TEXT_CARD_IDS) {
+        transformObject(spline, objectId, DESKTOP_CARD_SHIFT_X, 0, DESKTOP_CARD_SCALE);
       }
     }
   }
@@ -96,6 +105,64 @@ export default function Hero3D() {
       >
         <div className="hero-spline__loading" aria-hidden="true" />
       </Spline>
+      <div className="hero-spline__mask hero-spline__mask--left-r" aria-hidden="true" />
+      <div className="hero-spline__wordmark" aria-label="JAY'S BLOG">
+        <Shuffle
+          text="JAY'S"
+          className="hero-spline__wordmark-line"
+          shuffleDirection="down"
+          duration={0.35}
+          animationMode="evenodd"
+          shuffleTimes={1}
+          ease="power3.out"
+          stagger={0.03}
+          threshold={0.1}
+          triggerOnce={true}
+          triggerOnHover
+          respectReducedMotion={true}
+          loop={false}
+          loopDelay={0}
+          tag="p"
+          textAlign="left"
+          style={{
+            margin: 0,
+            color: '#ffffff',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(18px, 7vw, 40px)',
+            fontWeight: 700,
+            lineHeight: 1,
+            letterSpacing: '0.01em',
+          }}
+        />
+        <Shuffle
+          text="BLOG"
+          className="hero-spline__wordmark-line"
+          shuffleDirection="down"
+          duration={0.35}
+          animationMode="evenodd"
+          shuffleTimes={1}
+          ease="power3.out"
+          stagger={0.03}
+          threshold={0.1}
+          triggerOnce={true}
+          triggerOnHover
+          respectReducedMotion={true}
+          loop={false}
+          loopDelay={0}
+          tag="p"
+          textAlign="left"
+          style={{
+            margin: 0,
+            color: '#ffffff',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(18px, 7vw, 40px)',
+            fontWeight: 700,
+            lineHeight: 1,
+            letterSpacing: '0.01em',
+          }}
+        />
+      </div>
+      <GlassTopBar />
     </div>
   );
 }

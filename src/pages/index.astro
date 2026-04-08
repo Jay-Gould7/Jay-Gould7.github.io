@@ -19,7 +19,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 <style is:global>
 	body.landing-page {
 		margin: 0;
-		background: #08111f;
+		background: #cecdccff;
 		overflow: hidden;
 		overscroll-behavior: none;
 	}
@@ -39,9 +39,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		height: 100vh;
 		overflow: hidden;
 		padding:
-			env(safe-area-inset-top, 0)
+			0
 			env(safe-area-inset-right, 0)
-			env(safe-area-inset-bottom, 0)
+			0
 			env(safe-area-inset-left, 0);
 	}
 
@@ -54,8 +54,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 	@media (max-width: 720px) {
 		.landing-main {
-			height: 100svh;
-			min-height: 100svh;
+			height: calc(100lvh + env(safe-area-inset-top, 0) + env(safe-area-inset-bottom, 0) + 60px);
+			min-height: calc(100lvh + env(safe-area-inset-top, 0) + env(safe-area-inset-bottom, 0) + 60px);
 		}
 	}
 </style>
