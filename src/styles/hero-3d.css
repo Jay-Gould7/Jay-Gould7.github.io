@@ -1,0 +1,28 @@
+.hero-spline {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-spline__viewport {
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(173, 212, 255, 0.28), transparent 36%),
+    linear-gradient(155deg, rgba(7, 15, 28, 0.96), rgba(17, 35, 71, 0.9));
+}
+
+.hero-spline__viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.hero-spline__loading {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(136, 193, 255, 0.32), transparent 28%),
+    linear-gradient(160deg, rgba(7, 16, 32, 0.98), rgba(18, 34, 66, 0.92));
+}
