@@ -11,10 +11,28 @@ const MOBILE_CARD_SCALE = 0.9;
 const MOBILE_ZOOM = 0.6;
 const DESKTOP_CARD_SCALE = 1.3;
 const DESKTOP_CARD_SHIFT_X = -180;
+const HIDDEN_SCENE_GROUP_IDS = [
+  'a76d91f5-b9fc-49e0-a4fe-bd27112f524f',
+  '5bb83dd4-f628-484c-9434-dcf23ade24a3',
+];
 const TEXT_CARD_IDS = [
   'b466418a-90c7-4f81-8d5d-ccac94581c67',
   '314875a3-8d8c-4bf0-a2bf-22a29436e018',
 ];
+
+type SplineSceneObject = {
+  visible?: boolean;
+  children?: SplineSceneObject[];
+  position: {
+    x: number;
+    y: number;
+  };
+  scale: {
+    x: number;
+    y: number;
+    z: number;
+  };
+};
 
 function shouldUseMobileZoom() {
   const mobileUserAgent =
@@ -34,7 +52,7 @@ function transformObject(
   deltaY: number,
   scaleMultiplier: number,
 ) {
-  const object = spline.findObjectById(objectId);
+  const object = spline.findObjectById(objectId) as SplineSceneObject | null;
 
   if (object) {
     object.position.x += deltaX;
@@ -42,6 +60,24 @@ function transformObject(
     object.scale.x *= scaleMultiplier;
     object.scale.y *= scaleMultiplier;
     object.scale.z *= scaleMultiplier;
+  }
+}
+
+function hideObject(object: SplineSceneObject) {
+  object.visible = false;
+
+  if (Array.isArray(object.children)) {
+    for (const child of object.children) {
+      hideObject(child);
+    }
+  }
+}
+
+function hideObjectById(spline: Application, objectId: string) {
+  const object = spline.findObjectById(objectId) as SplineSceneObject | null;
+
+  if (object) {
+    hideObject(object);
   }
 }
 
@@ -69,6 +105,10 @@ export default function Hero3D() {
       if (Array.isArray(orbitControls.mouseButtonsPlay) && orbitControls.mouseButtonsPlay.length >= 3) {
         orbitControls.mouseButtonsPlay[2] = -1;
       }
+    }
+
+    for (const objectId of HIDDEN_SCENE_GROUP_IDS) {
+      hideObjectById(spline, objectId);
     }
 
     if (isMobile) {
@@ -130,8 +170,8 @@ export default function Hero3D() {
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 'clamp(18px, 7vw, 40px)',
             fontWeight: 700,
-            lineHeight: 1,
-            letterSpacing: '0.01em',
+            lineHeight: 'var(--hero-wordmark-line-height, 1)',
+            letterSpacing: 'var(--hero-wordmark-letter-spacing, 0.01em)',
           }}
         />
         <Shuffle
@@ -157,8 +197,8 @@ export default function Hero3D() {
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 'clamp(18px, 7vw, 40px)',
             fontWeight: 700,
-            lineHeight: 1,
-            letterSpacing: '0.01em',
+            lineHeight: 'var(--hero-wordmark-line-height, 1)',
+            letterSpacing: 'var(--hero-wordmark-letter-spacing, 0.01em)',
           }}
         />
       </div>

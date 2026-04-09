@@ -9,6 +9,67 @@ import type { JSX } from 'react';
 
 gsap.registerPlugin(ScrollTrigger, GSAPSplitText);
 
+const GENERIC_FONT_FAMILIES = new Set([
+  'serif',
+  'sans-serif',
+  'monospace',
+  'cursive',
+  'fantasy',
+  'system-ui',
+  'ui-serif',
+  'ui-sans-serif',
+  'ui-monospace',
+  'ui-rounded',
+  'emoji',
+  'math',
+  'fangsong',
+]);
+
+function stripQuotes(value: string) {
+  return value.trim().replace(/^['"]|['"]$/g, '');
+}
+
+function waitForNextFrame() {
+  return new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+}
+
+async function waitForElementFonts(element: HTMLElement, sampleText: string) {
+  if (!('fonts' in document)) return;
+
+  const computed = window.getComputedStyle(element);
+  const families = computed.fontFamily
+    .split(',')
+    .map(stripQuotes)
+    .filter(Boolean)
+    .filter((family) => !GENERIC_FONT_FAMILIES.has(family.toLowerCase()));
+
+  if (!families.length) {
+    await document.fonts.ready;
+    return;
+  }
+
+  const descriptorPrefix = [
+    computed.fontStyle || 'normal',
+    computed.fontVariant || 'normal',
+    computed.fontWeight || '400',
+    computed.fontStretch && computed.fontStretch !== 'normal' ? computed.fontStretch : '',
+    computed.fontSize || '16px',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const textSample = sampleText.trim() || element.textContent?.trim() || 'BESbswy';
+  const descriptors = families.map((family) => `${descriptorPrefix} "${family}"`);
+
+  await document.fonts.ready;
+  await Promise.allSettled(descriptors.map((descriptor) => document.fonts.load(descriptor, textSample)));
+
+  await waitForNextFrame();
+  await waitForNextFrame();
+}
+
 export interface ShuffleProps {
   text: string;
   className?: string;
@@ -71,11 +132,29 @@ const Shuffle: React.FC<ShuffleProps> = ({
   const hoverHandlerRef = useRef<((e: Event) => void) | null>(null);
 
   useEffect(() => {
-    if ('fonts' in document) {
-      if (document.fonts.status === 'loaded') setFontsLoaded(true);
-      else document.fonts.ready.then(() => setFontsLoaded(true));
-    } else setFontsLoaded(true);
-  }, []);
+    let cancelled = false;
+
+    const prepareFonts = async () => {
+      try {
+        if (ref.current) {
+          await waitForElementFonts(ref.current, text);
+        } else if ('fonts' in document) {
+          await document.fonts.ready;
+        }
+      } finally {
+        if (!cancelled) {
+          setFontsLoaded(true);
+        }
+      }
+    };
+
+    setFontsLoaded(false);
+    void prepareFonts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [className, style.fontFamily, style.fontStyle, style.fontWeight, text]);
 
   const scrollTriggerStart = useMemo(() => {
     const startPct = (1 - threshold) * 100;

@@ -66,6 +66,8 @@
   gap: clamp(4px, 0.5vh, 10px);
   pointer-events: auto;
   user-select: none;
+  --hero-wordmark-line-height: 1;
+  --hero-wordmark-letter-spacing: 0.01em;
 }
 
 .hero-spline__wordmark-line {
@@ -117,7 +119,9 @@
   .hero-spline__wordmark {
     top: calc(env(safe-area-inset-top, 0) + 78px);
     left: clamp(14px, 4vw, 24px);
-    gap: 4px;
+    gap: 2px;
+    --hero-wordmark-line-height: 0.92;
+    --hero-wordmark-letter-spacing: 0;
   }
 
   .hero-spline__topbar {
