@@ -1,8 +1,11 @@
 .hero-spline {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: inherit;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: auto;
 }
 
 .hero-spline__viewport {
@@ -43,21 +46,21 @@
 .hero-spline__mask--left-r {
   top: clamp(48px, 12vh, 144px);
   left: clamp(20px, 3vw, 56px);
-  width: clamp(112px, 9vw, 180px);
-  height: clamp(112px, 14vh, 220px);
+  width: clamp(140px, 11vw, 220px);
+  height: clamp(140px, 16vh, 260px);
   background:
     radial-gradient(
       circle at 58% 44%,
-      rgba(206, 205, 204, 0.995) 0 52%,
-      rgba(206, 205, 204, 0.92) 72%,
+      rgba(206, 205, 204, 1) 0 56%,
+      rgba(206, 205, 204, 0.98) 75%,
       rgba(206, 205, 204, 0) 100%
     );
-  filter: blur(10px);
+  filter: blur(12px);
 }
 
 .hero-spline__wordmark {
   position: absolute;
-  top: clamp(78px, 15vh, 176px);
+  top: clamp(40px, 8vh, 100px); /* Moved up from (78,15,176) */
   left: clamp(72px, 10vw, 132px);
   z-index: 3;
   display: flex;

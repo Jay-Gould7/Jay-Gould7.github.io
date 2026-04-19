@@ -14,6 +14,7 @@ const DESKTOP_CARD_SHIFT_X = -180;
 const HIDDEN_SCENE_GROUP_IDS = [
   'a76d91f5-b9fc-49e0-a4fe-bd27112f524f',
   '5bb83dd4-f628-484c-9434-dcf23ade24a3',
+  'c36dee03-8ac2-4616-8bc2-6a50e5db13b5', // "R" letter between glass and sphere
 ];
 const TEXT_CARD_IDS = [
   'b466418a-90c7-4f81-8d5d-ccac94581c67',
@@ -111,6 +112,20 @@ export default function Hero3D() {
       hideObjectById(spline, objectId);
     }
 
+    // Hide the "R" letter object embedded in the 3D scene
+    try {
+      const allObjects = (spline as any).getAllObjects?.() ?? [];
+      for (const obj of allObjects) {
+        const name = (obj.name || '').trim();
+        // Match objects explicitly named "R" or common Spline text naming patterns
+        if (name === 'R' || name === 'r' || name === 'Text R' || name === 'R Text') {
+          hideObject(obj as SplineSceneObject);
+        }
+      }
+    } catch (_) {
+      // Silently fail if getAllObjects is unavailable
+    }
+
     if (isMobile) {
       spline.setZoom(MOBILE_ZOOM);
 
@@ -145,7 +160,6 @@ export default function Hero3D() {
       >
         <div className="hero-spline__loading" aria-hidden="true" />
       </Spline>
-      <div className="hero-spline__mask hero-spline__mask--left-r" aria-hidden="true" />
       <div className="hero-spline__wordmark" aria-label="JAY'S BLOG">
         <Shuffle
           text="JAY'S"
@@ -193,6 +207,7 @@ export default function Hero3D() {
           textAlign="left"
           style={{
             margin: 0,
+            marginLeft: '1.5em', /* Moved independently to the right */
             color: '#ffffff',
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 'clamp(18px, 7vw, 40px)',

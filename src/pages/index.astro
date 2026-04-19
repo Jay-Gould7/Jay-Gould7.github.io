@@ -1,7 +1,27 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import Hero3D from '../components/Hero3D';
+import Profile from '../components/Profile.astro';
+import StackedArticles from '../components/StackedArticles';
+import GlassSurface from '../components/reactbits/GlassSurface';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+	(a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+).slice(0, 5); // Fetch more so there's enough to swipe through
+
+const articleData = posts.map((post: any) => ({
+    id: post.id,
+    title: post.data.title,
+    date: post.data.pubDate.toLocaleDateString('en-us', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    }),
+    excerpt: post.data.description,
+    href: `/blog/${post.id}/`
+}));
 ---
 
 <!doctype html>
@@ -12,6 +32,54 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body class="landing-page">
 		<main class="landing-main" aria-label="3D homepage">
 			<Hero3D client:only="react" />
+
+            <!-- Pill-shaped GlassSurface for Socials -->
+            <div class="top-right-socials-wrapper">
+                <GlassSurface
+                    client:only="react"
+                    width={150}
+                    height={50}
+                    borderRadius={25}
+                    opacity={0.93}
+                    blur={12}
+                    backgroundOpacity={0.1}
+                    brightness={50}
+                    borderWidth={0.08}
+                    saturation={1.25}
+                    mixBlendMode="screen"
+                >
+                    <div class="social-icons-row">
+                        <a href="https://github.com/Jay-Gould7" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <img src="/Icons/github-logo.svg" alt="GitHub" />
+                        </a>
+                        <a href="https://x.com/Gould777" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+                            <img src="/Icons/x-logo.svg" alt="X" />
+                        </a>
+                        <button id="email-btn" class="email-btn" aria-label="Email">
+                            <img src="/Icons/envelope-simple.svg" alt="Email" />
+                        </button>
+                    </div>
+                </GlassSurface>
+
+                <div id="email-popup" class="email-popup">
+                    gold.xxtxx@gmail.com
+                </div>
+            </div>
+
+            <div class="content-overlay">
+                <div class="left-col">
+                    <Profile />
+                </div>
+                
+                <div class="right-col">
+                    <section class="latest-articles">
+                        <div class="articles-header">
+                            <h2 class="section-title">LATEST WRITINGS</h2>
+                        </div>
+                        <StackedArticles client:load articles={articleData} />
+                    </section>
+                </div>
+            </div>
 		</main>
 	</body>
 </html>
@@ -19,9 +87,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 <style is:global>
 	body.landing-page {
 		margin: 0;
-		background: #cecdccff;
-		overflow: hidden;
+		background: #cecdcc; 
 		overscroll-behavior: none;
+        overflow: hidden; /* Strictly prevent all scrollbars */
 	}
 
 	body.landing-page main {
@@ -35,27 +103,208 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 <style>
 	.landing-main {
 		width: 100%;
-		min-height: 100vh;
-		height: 100vh;
-		overflow: hidden;
-		padding:
-			0
-			env(safe-area-inset-right, 0)
-			0
-			env(safe-area-inset-left, 0);
+		height: 100vh; /* Fixed exactly to viewport */
+        position: relative;
+        overflow: hidden; /* Prevent child content from stretching screen */
 	}
 
-	@supports (height: 100dvh) {
-		.landing-main {
-			height: 100dvh;
-			min-height: 100dvh;
-		}
-	}
+    .content-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0; /* Anchor securely to the bottom bounds */
+        z-index: 10;
+        width: 100%;
+        max-width: 100%;
+        padding-top: clamp(140px, 18vh, 220px); /* Moved up together with wordmark */
+        pointer-events: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        box-sizing: border-box;
+    }
 
-	@media (max-width: 720px) {
-		.landing-main {
-			height: calc(100lvh + env(safe-area-inset-top, 0) + env(safe-area-inset-bottom, 0) + 60px);
-			min-height: calc(100lvh + env(safe-area-inset-top, 0) + env(safe-area-inset-bottom, 0) + 60px);
-		}
+    .left-col {
+        flex: 0 0 auto;
+        padding-left: clamp(72px, 10vw, 132px);
+        margin-top: clamp(20px, 3vh, 40px); /* Pushed down slightly per request */
+    }
+
+    .right-col {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: clamp(40px, 8vw, 120px);
+        width: 100%;
+        max-width: 380px; 
+        margin-top: clamp(30px, 10vh, 100px); /* Pushed down slightly per request */
+    }
+
+    .latest-articles {
+        pointer-events: auto;
+        width: 100%;
+    }
+
+    .articles-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-family: 'Press Start 2P', monospace;
+        font-size: 1rem;
+        color: rgba(60,60,60,0.8); 
+        letter-spacing: 0.05em;
+        text-align: right;
+        margin: 0;
+    }
+
+    .top-right-socials-wrapper {
+        position: absolute;
+        top: calc(env(safe-area-inset-top, 0) + 20px); /* Nudged down */
+        right: clamp(40px, 8vw, 120px);
+        z-index: 20;
+        pointer-events: auto;
+    }
+
+    .social-icons-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 100%;
+        height: 100%;
+        padding: 0 8px;
+    }
+
+    .social-icons-row a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .social-icons-row a:hover {
+        transform: translateY(-2px);
+    }
+
+    .social-icons-row img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.6;
+        filter: invert(1);
+        transition: opacity 0.3s ease;
+    }
+    
+    .social-icons-row a:hover img, .email-btn:hover img {
+        opacity: 1;
+    }
+
+    .email-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .email-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .email-btn img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.6;
+        filter: invert(1);
+        transition: opacity 0.3s ease;
+    }
+
+    .email-popup {
+        position: absolute;
+        top: 60px; /* drops below the capsule */
+        right: 0;
+        background: rgba(20, 20, 30, 0.7);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-family: system-ui, sans-serif;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        white-space: nowrap;
+    }
+
+    .email-popup.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+	@media (max-width: 820px) {
+        .content-overlay {
+            flex-direction: column;
+            padding-left: 0;
+            padding-top: clamp(280px, 30vh, 320px);
+            gap: 4rem;
+        }
+        
+        .top-right-socials-wrapper {
+            top: 24px;
+            right: clamp(14px, 4vw, 24px);
+            transform: scale(0.9);
+            transform-origin: top right;
+        }
+
+        .left-col {
+            padding-left: clamp(14px, 4vw, 24px);
+        }
+
+        .right-col {
+            padding-right: clamp(14px, 4vw, 24px);
+            padding-left: clamp(14px, 4vw, 24px);
+            margin-top: 0;
+            justify-content: flex-start;
+            max-width: 100%;
+        }
+
+        .articles-header {
+            justify-content: flex-start;
+        }
+
+        .section-title {
+            text-align: left;
+        }
 	}
 </style>
+
+<script>
+    const emailBtn = document.getElementById('email-btn');
+    const emailPopup = document.getElementById('email-popup');
+
+    if (emailBtn && emailPopup) {
+        emailBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            emailPopup.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!emailPopup.contains(e.target as Node) && e.target !== emailBtn) {
+                emailPopup.classList.remove('show');
+            }
+        });
+    }
+</script>
