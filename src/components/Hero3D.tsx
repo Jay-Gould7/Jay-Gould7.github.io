@@ -1,7 +1,6 @@
 import Spline from '@splinetool/react-spline';
 import type { Application } from '@splinetool/runtime';
 
-import GlassTopBar from './GlassTopBar';
 import Shuffle from './reactbits/Shuffle';
 import '../styles/hero-3d.css';
 
@@ -217,7 +216,6 @@ export default function Hero3D() {
           }}
         />
       </div>
-      <GlassTopBar />
     </div>
   );
 }

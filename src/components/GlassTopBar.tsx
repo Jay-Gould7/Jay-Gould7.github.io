@@ -4,6 +4,7 @@ import { type ReactNode, useMemo, useState } from 'react';
 
 import Dock, { type DockItemData } from './reactbits/Dock';
 import GlassSurface from './reactbits/GlassSurface';
+import '../styles/hero-3d.css';
 
 type NavButton = {
   href: string;

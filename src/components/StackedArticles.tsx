@@ -41,7 +41,6 @@ export default function StackedArticles({ articles }: Props) {
       style={{ 
         position: 'relative', 
         width: '100%', 
-        height: '500px', /* Increased container height to accommodate taller cards */
         perspective: '1000px',
         pointerEvents: 'none' // the container allows clicks through the empty space
       }}
@@ -95,7 +94,8 @@ export default function StackedArticles({ articles }: Props) {
                 pointerEvents: isFront ? 'auto' : 'none',
               }}
             >
-              <div 
+              <div
+                className="stacked-article-card"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -103,11 +103,9 @@ export default function StackedArticles({ articles }: Props) {
                   background: isFront ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)',
                   backdropFilter: 'blur(24px)',
                   border: '1px solid rgba(255, 255, 255, 0.15)',
-                  padding: '1.5rem',
                   borderRadius: '16px',
                   color: '#fff',
-                  boxShadow: isFront ? '0 12px 40px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.1)',
-                  height: '380px', /* Taller card */
+                  boxShadow: isFront ? '0 8px 28px rgba(0,0,0,0.16)' : '0 3px 14px rgba(0,0,0,0.06)',
                   boxSizing: 'border-box'
                 }}
               >

@@ -1,0 +1,158 @@
+---
+import GlassSurface from './reactbits/GlassSurface';
+---
+
+<div class="socials-dock">
+    <GlassSurface
+        client:only="react"
+        width={150}
+        height={50}
+        borderRadius={25}
+        opacity={0.93}
+        blur={12}
+        backgroundOpacity={0.1}
+        brightness={50}
+        borderWidth={0.08}
+        saturation={1.25}
+        mixBlendMode="screen"
+    >
+        <div class="social-icons-row">
+            <a href="https://github.com/Jay-Gould7" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <img src="/Icons/github-logo.svg" alt="GitHub" />
+            </a>
+            <a href="https://x.com/Gould777" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+                <img src="/Icons/x-logo.svg" alt="X" />
+            </a>
+            <button id="socials-dock-email-btn" class="email-btn" aria-label="Email">
+                <img src="/Icons/envelope-simple.svg" alt="Email" />
+            </button>
+        </div>
+    </GlassSurface>
+
+    <div id="socials-dock-email-popup" class="email-popup">
+        gold.xxtxx@gmail.com
+    </div>
+</div>
+
+<style>
+    .socials-dock {
+        position: fixed;
+        /* Desktop default: top-right corner */
+        top: calc(env(safe-area-inset-top, 0) + 20px);
+        right: clamp(40px, 8vw, 120px);
+        z-index: 50;
+        pointer-events: auto;
+    }
+
+    .social-icons-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 100%;
+        height: 100%;
+        padding: 0 8px;
+    }
+
+    .social-icons-row a,
+    .email-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .social-icons-row a:hover,
+    .email-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .social-icons-row img,
+    .email-btn img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.6;
+        filter: invert(1);
+        transition: opacity 0.3s ease;
+    }
+
+    .social-icons-row a:hover img,
+    .email-btn:hover img {
+        opacity: 1;
+    }
+
+    .email-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    /* Desktop: popup drops below the capsule */
+    .email-popup {
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: rgba(20, 20, 30, 0.7);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-family: system-ui, sans-serif;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        white-space: nowrap;
+    }
+
+    .email-popup.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    /* Mobile: dock pinned to bottom-left, popup flips above capsule */
+    @media (max-width: 820px) {
+        .socials-dock {
+            top: auto;
+            right: auto;
+            left: clamp(14px, 4vw, 24px);
+            bottom: calc(env(safe-area-inset-bottom, 0) + 4px);
+            transform: scale(0.85);
+            transform-origin: bottom left;
+        }
+
+        .email-popup {
+            top: auto;
+            right: auto;
+            bottom: 60px;
+            left: 0;
+            transform: translateY(8px);
+        }
+
+        .email-popup.show {
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    const btn = document.getElementById('socials-dock-email-btn');
+    const popup = document.getElementById('socials-dock-email-popup');
+
+    if (btn && popup) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            popup.classList.remove('show');
+        });
+    }
+</script>

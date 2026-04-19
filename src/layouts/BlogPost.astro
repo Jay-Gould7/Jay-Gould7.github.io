@@ -4,7 +4,9 @@ import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import GlassTopBar from '../components/GlassTopBar';
 import Header from '../components/Header.astro';
+import SocialsDock from '../components/SocialsDock.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -57,6 +59,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 	<body>
 		<Header />
+		<GlassTopBar client:only="react" />
 		<main>
 			<article>
 				<div class="hero-image">
@@ -81,6 +84,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				</div>
 			</article>
 		</main>
+		<SocialsDock />
 		<Footer />
 	</body>
 </html>

@@ -60,6 +60,23 @@ const useDarkMode = () => {
   return isDark;
 };
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 820px)');
+    setIsMobile(mediaQuery.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  return isMobile;
+};
+
 const GlassSurface: React.FC<GlassSurfaceProps> = ({
   children,
   width = 200,
@@ -97,6 +114,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   const gaussianBlurRef = useRef<SVGFEGaussianBlurElement>(null);
 
   const isDarkMode = useDarkMode();
+  const isMobile = useIsMobile();
 
   const generateDisplacementMap = () => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -232,6 +250,10 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       '--glass-saturation': saturation
     } as React.CSSProperties;
 
+    const shadow = isMobile
+      ? 'none'
+      : '0 6px 20px rgba(17, 17, 26, 0.06), 0 2px 8px rgba(17, 17, 26, 0.04)';
+
     const backdropFilterSupported = supportsBackdropFilter();
     const fallbackBackgroundOpacity = backdropFilterSupported
       ? Math.max(backgroundOpacity, 0.06)
@@ -250,23 +272,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
         ...baseStyles,
         background: isDarkMode ? `hsl(0 0% 0% / ${backgroundOpacity})` : `hsl(0 0% 100% / ${backgroundOpacity})`,
         backdropFilter: `url(#${filterId}) saturate(${saturation})`,
-        boxShadow: isDarkMode
-          ? `0 0 2px 1px color-mix(in oklch, white, transparent 65%) inset,
-             0 0 10px 4px color-mix(in oklch, white, transparent 85%) inset,
-             0px 4px 16px rgba(17, 17, 26, 0.05),
-             0px 8px 24px rgba(17, 17, 26, 0.05),
-             0px 16px 56px rgba(17, 17, 26, 0.05),
-             0px 4px 16px rgba(17, 17, 26, 0.05) inset,
-             0px 8px 24px rgba(17, 17, 26, 0.05) inset,
-             0px 16px 56px rgba(17, 17, 26, 0.05) inset`
-          : `0 0 2px 1px color-mix(in oklch, black, transparent 85%) inset,
-             0 0 10px 4px color-mix(in oklch, black, transparent 90%) inset,
-             0px 4px 16px rgba(17, 17, 26, 0.05),
-             0px 8px 24px rgba(17, 17, 26, 0.05),
-             0px 16px 56px rgba(17, 17, 26, 0.05),
-             0px 4px 16px rgba(17, 17, 26, 0.05) inset,
-             0px 8px 24px rgba(17, 17, 26, 0.05) inset,
-             0px 16px 56px rgba(17, 17, 26, 0.05) inset`
+        boxShadow: shadow
       };
     } else {
       if (isDarkMode) {
@@ -275,8 +281,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
             ...baseStyles,
             background: `rgba(0, 0, 0, ${fallbackBackgroundOpacity + 0.08})`,
             border: `1px solid rgba(255, 255, 255, ${fallbackBorderOpacity})`,
-            boxShadow: `inset 0 1px 0 0 rgba(255, 255, 255, ${fallbackInnerHighlightOpacity}),
-                        inset 0 -1px 0 0 rgba(255, 255, 255, ${fallbackBorderOpacity * 0.55})`
+            boxShadow: shadow
           };
         } else {
           return {
@@ -285,8 +290,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
             backdropFilter: `blur(${fallbackBlur}px) saturate(${fallbackSaturation}) brightness(${fallbackBrightness})`,
             WebkitBackdropFilter: `blur(${fallbackBlur}px) saturate(${fallbackSaturation}) brightness(${fallbackBrightness})`,
             border: `1px solid rgba(255, 255, 255, ${fallbackBorderOpacity})`,
-            boxShadow: `inset 0 1px 0 0 rgba(255, 255, 255, ${fallbackInnerHighlightOpacity}),
-                        inset 0 -1px 0 0 rgba(255, 255, 255, ${fallbackBorderOpacity * 0.55})`
+            boxShadow: shadow
           };
         }
       } else {
@@ -295,8 +299,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
             ...baseStyles,
             background: `rgba(255, 255, 255, ${fallbackBackgroundOpacity})`,
             border: `1px solid rgba(255, 255, 255, ${fallbackBorderOpacity + 0.08})`,
-            boxShadow: `inset 0 1px 0 0 rgba(255, 255, 255, ${fallbackInnerHighlightOpacity + 0.06}),
-                        inset 0 -1px 0 0 rgba(255, 255, 255, ${fallbackBorderOpacity * 0.75})`
+            boxShadow: shadow
           };
         } else {
           return {
@@ -305,10 +308,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
             backdropFilter: `blur(${fallbackBlur}px) saturate(${fallbackSaturation}) brightness(${fallbackBrightness})`,
             WebkitBackdropFilter: `blur(${fallbackBlur}px) saturate(${fallbackSaturation}) brightness(${fallbackBrightness})`,
             border: `1px solid rgba(255, 255, 255, ${fallbackBorderOpacity + 0.08})`,
-            boxShadow: `0 8px 24px 0 rgba(31, 38, 135, 0.14),
-                        0 2px 12px 0 rgba(31, 38, 135, 0.08),
-                        inset 0 1px 0 0 rgba(255, 255, 255, ${fallbackInnerHighlightOpacity}),
-                        inset 0 -1px 0 0 rgba(255, 255, 255, ${fallbackBorderOpacity * 0.65})`
+            boxShadow: shadow
           };
         }
       }

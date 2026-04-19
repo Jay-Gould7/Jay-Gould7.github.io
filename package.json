@@ -17,6 +17,7 @@
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@gsap/react": "^2.1.2",
+    "@react-three/fiber": "^9.6.0",
     "@splinetool/react-spline": "^4.1.0",
     "@splinetool/runtime": "^1.12.78",
     "@tailwindcss/vite": "^4.2.2",

@@ -14,9 +14,21 @@
   min-height: inherit;
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top, rgba(173, 212, 255, 0.28), transparent 36%),
-    linear-gradient(155deg, rgba(7, 15, 28, 0.96), rgba(17, 35, 71, 0.9));
+  background: transparent; /* Let the Spline scene / body #CECECE define the colour */
+}
+
+/* Fade the Spline scene's own dark edges into the page background (#CECECE).
+   ::before covers the top band, ::after covers the bottom band. */
+.hero-spline__viewport::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 18vh;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #DCDCDC 0%, rgba(220, 220, 220, 0.78) 28%, rgba(220, 220, 220, 0) 100%);
 }
 
 .hero-spline__viewport canvas {
@@ -32,9 +44,7 @@
   place-items: center;
   width: 100%;
   height: 100%;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(136, 193, 255, 0.32), transparent 28%),
-    linear-gradient(160deg, rgba(7, 16, 32, 0.98), rgba(18, 34, 66, 0.92));
+  background: transparent;
 }
 
 .hero-spline__mask {
@@ -78,11 +88,11 @@
 }
 
 .hero-spline__topbar {
-  position: absolute;
+  position: fixed; /* Pin to the viewport so it shows on every page */
   top: calc(env(safe-area-inset-top, 0) + 12px);
   left: 0;
   right: 0;
-  z-index: 5;
+  z-index: 50;
   display: flex;
   justify-content: center;
   overflow: visible;
@@ -115,6 +125,14 @@
 }
 
 @media (max-width: 820px) {
+  /* Keep the 3D hero at the LARGE viewport height (100vh / 100lvh) so the
+     background extends behind iOS Safari's translucent bottom URL bar,
+     preventing a visible grey/dark strip underneath the content. */
+  .hero-spline {
+    height: 100vh;
+    height: 100lvh;
+  }
+
   .hero-spline__mask--left-r {
     display: none;
   }
@@ -128,6 +146,6 @@
   }
 
   .hero-spline__topbar {
-    top: calc(env(safe-area-inset-top, 0) + 2px);
+    top: calc(env(safe-area-inset-top, 0) - 6px);
   }
 }

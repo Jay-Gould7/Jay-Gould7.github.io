@@ -1,9 +1,10 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import GlassTopBar from '../components/GlassTopBar';
 import Hero3D from '../components/Hero3D';
 import Profile from '../components/Profile.astro';
+import SocialsDock from '../components/SocialsDock.astro';
 import StackedArticles from '../components/StackedArticles';
-import GlassSurface from '../components/reactbits/GlassSurface';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { getCollection } from 'astro:content';
 
@@ -33,38 +34,8 @@ const articleData = posts.map((post: any) => ({
 		<main class="landing-main" aria-label="3D homepage">
 			<Hero3D client:only="react" />
 
-            <!-- Pill-shaped GlassSurface for Socials -->
-            <div class="top-right-socials-wrapper">
-                <GlassSurface
-                    client:only="react"
-                    width={150}
-                    height={50}
-                    borderRadius={25}
-                    opacity={0.93}
-                    blur={12}
-                    backgroundOpacity={0.1}
-                    brightness={50}
-                    borderWidth={0.08}
-                    saturation={1.25}
-                    mixBlendMode="screen"
-                >
-                    <div class="social-icons-row">
-                        <a href="https://github.com/Jay-Gould7" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                            <img src="/Icons/github-logo.svg" alt="GitHub" />
-                        </a>
-                        <a href="https://x.com/Gould777" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-                            <img src="/Icons/x-logo.svg" alt="X" />
-                        </a>
-                        <button id="email-btn" class="email-btn" aria-label="Email">
-                            <img src="/Icons/envelope-simple.svg" alt="Email" />
-                        </button>
-                    </div>
-                </GlassSurface>
-
-                <div id="email-popup" class="email-popup">
-                    gold.xxtxx@gmail.com
-                </div>
-            </div>
+            <GlassTopBar client:only="react" />
+            <SocialsDock />
 
             <div class="content-overlay">
                 <div class="left-col">
@@ -87,9 +58,23 @@ const articleData = posts.map((post: any) => ({
 <style is:global>
 	body.landing-page {
 		margin: 0;
-		background: #cecdcc; 
+		background: #DCDCDC; 
 		overscroll-behavior: none;
         overflow: hidden; /* Strictly prevent all scrollbars */
+	}
+
+	/* Bottom fade pinned to the visible viewport so it stays aligned
+	   with the page background even as iOS Safari's URL bar expands/collapses. */
+	body.landing-page::after {
+		content: '';
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 18vh;
+		background: linear-gradient(to top, #DCDCDC 0%, rgba(220, 220, 220, 0.78) 28%, rgba(220, 220, 220, 0) 100%);
+		pointer-events: none;
+		z-index: 1;
 	}
 
 	body.landing-page main {
@@ -97,6 +82,37 @@ const articleData = posts.map((post: any) => ({
 		max-width: none;
 		margin: 0;
 		padding: 0;
+	}
+
+	/* Stacked articles sizing (desktop defaults preserved) */
+	.stacked-articles-container {
+		height: 500px;
+	}
+
+	.stacked-article-card {
+		height: 380px;
+		padding: 1.5rem;
+	}
+
+	@media (max-width: 820px) {
+		/* Same vertical-card proportions as desktop, just slightly smaller */
+		.stacked-articles-container {
+			height: 380px;
+		}
+		.stacked-article-card {
+			height: 340px;
+			padding: 1.25rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.stacked-articles-container {
+			height: 340px;
+		}
+		.stacked-article-card {
+			height: 300px;
+			padding: 1rem;
+		}
 	}
 </style>
 
@@ -161,150 +177,69 @@ const articleData = posts.map((post: any) => ({
         margin: 0;
     }
 
-    .top-right-socials-wrapper {
-        position: absolute;
-        top: calc(env(safe-area-inset-top, 0) + 20px); /* Nudged down */
-        right: clamp(40px, 8vw, 120px);
-        z-index: 20;
-        pointer-events: auto;
-    }
-
-    .social-icons-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-evenly;
-        width: 100%;
-        height: 100%;
-        padding: 0 8px;
-    }
-
-    .social-icons-row a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .social-icons-row a:hover {
-        transform: translateY(-2px);
-    }
-
-    .social-icons-row img {
-        width: 20px;
-        height: 20px;
-        opacity: 0.6;
-        filter: invert(1);
-        transition: opacity 0.3s ease;
-    }
-    
-    .social-icons-row a:hover img, .email-btn:hover img {
-        opacity: 1;
-    }
-
-    .email-btn {
-        background: transparent;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .email-btn:hover {
-        transform: translateY(-2px);
-    }
-
-    .email-btn img {
-        width: 20px;
-        height: 20px;
-        opacity: 0.6;
-        filter: invert(1);
-        transition: opacity 0.3s ease;
-    }
-
-    .email-popup {
-        position: absolute;
-        top: 60px; /* drops below the capsule */
-        right: 0;
-        background: rgba(20, 20, 30, 0.7);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ffffff;
-        padding: 8px 16px;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        font-family: system-ui, sans-serif;
-        pointer-events: none;
-        opacity: 0;
-        transform: translateY(-8px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-        white-space: nowrap;
-    }
-
-    .email-popup.show {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateY(0);
-    }
-
 	@media (max-width: 820px) {
+        /* Mobile homepage is fixed to a single viewport — no scrolling.
+           dvh excludes the iOS/Android URL bar from the height calculation. */
+        .landing-main {
+            height: 100dvh;
+        }
+
         .content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             flex-direction: column;
             padding-left: 0;
-            padding-top: clamp(280px, 30vh, 320px);
-            gap: 4rem;
-        }
-        
-        .top-right-socials-wrapper {
-            top: 24px;
-            right: clamp(14px, 4vw, 24px);
-            transform: scale(0.9);
-            transform-origin: top right;
+            padding-top: clamp(170px, 20vh, 195px); /* keep profile BELOW the JAY'S BLOG wordmark */
+            padding-bottom: 16px;
+            gap: 1rem; /* spacing between profile and articles */
+            overflow: hidden;
         }
 
         .left-col {
             padding-left: clamp(14px, 4vw, 24px);
+            margin-top: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .right-col {
+        .content-overlay .right-col {
             padding-right: clamp(14px, 4vw, 24px);
-            padding-left: clamp(14px, 4vw, 24px);
-            margin-top: 0;
-            justify-content: flex-start;
+            padding-left: 0;
+            margin-top: auto; /* push the article stack to the bottom of the viewport */
+            justify-content: flex-end; /* pin the stack to the right, leave space on the left */
             max-width: 100%;
+            width: 100%;
+            align-self: stretch;
+            box-sizing: border-box;
+        }
+
+        .content-overlay .right-col .latest-articles {
+            width: clamp(220px, 60vw, 260px); /* narrow vertical card column */
+            flex: 0 0 auto;
         }
 
         .articles-header {
-            justify-content: flex-start;
+            justify-content: flex-end;
+            margin-bottom: 0.5rem;
         }
 
         .section-title {
-            text-align: left;
+            text-align: right;
+            font-size: 0.75rem;
         }
 	}
+
+    @media (max-width: 480px) {
+        .content-overlay {
+            padding-top: clamp(155px, 19vh, 180px);
+            gap: 0.85rem;
+        }
+        .latest-articles {
+            width: clamp(200px, 58vw, 240px);
+        }
+    }
 </style>
 
-<script>
-    const emailBtn = document.getElementById('email-btn');
-    const emailPopup = document.getElementById('email-popup');
-
-    if (emailBtn && emailPopup) {
-        emailBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            emailPopup.classList.toggle('show');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!emailPopup.contains(e.target as Node) && e.target !== emailBtn) {
-                emailPopup.classList.remove('show');
-            }
-        });
-    }
-</script>
