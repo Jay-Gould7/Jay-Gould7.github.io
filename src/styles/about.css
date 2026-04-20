@@ -1,0 +1,242 @@
+/* =========================================================
+   About page — global styles. Imported once from
+   src/pages/about.astro so class names survive Astro's
+   scoped-CSS tree-shaking against the React AboutBento.
+   ========================================================= */
+
+body.about-page {
+	margin: 0;
+	min-height: 100vh;
+	background: #DCDCDC;
+	color: #1a1a1a;
+	font-family: 'Atkinson', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+body.about-page *,
+body.about-page *::before,
+body.about-page *::after {
+	box-sizing: border-box;
+}
+
+.about {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: clamp(80px, 11vh, 120px) clamp(24px, 6vw, 80px) 160px;
+}
+
+.about__head {
+	margin-bottom: clamp(32px, 5vh, 56px);
+}
+
+.about__eyebrow {
+	margin: 0 0 18px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.68rem;
+	letter-spacing: 0.32em;
+	color: rgba(26, 26, 26, 0.5);
+}
+
+.about__title {
+	margin: 0 0 18px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: clamp(1.9rem, 5.6vw, 3.2rem);
+	line-height: 1.05;
+	letter-spacing: 0.02em;
+	color: #1a1a1a;
+}
+
+.about__subtitle {
+	margin: 0;
+	max-width: 560px;
+	font-size: 1.05rem;
+	line-height: 1.55;
+	color: rgba(26, 26, 26, 0.72);
+}
+
+/* ---------- ScrollStack cards ---------- */
+
+.about-stack-wrap {
+	min-height: 100vh;
+}
+
+/* ScrollStackItem outer div receives this via itemClassName.
+   Tailwind's p-12 from the stub component is killed so the
+   inner <a> can fill the card and absorb clicks everywhere. */
+.about-stack-card {
+	/* Override Tailwind h-80 so stacking reads as "half-screen
+	   panels being covered", not tiny tiles. */
+	height: clamp(380px, 60vh, 560px) !important;
+	padding: 0 !important;
+	border-radius: 32px !important;
+	overflow: hidden;
+	/* Real frosted glass, matching .blog-card. The two cards share
+	   one surface — variant glow colours below do the subtle
+	   differentiation (warm = projects, cool = life). */
+	background: linear-gradient(
+		160deg,
+		rgba(255, 255, 255, 0.58) 0%,
+		rgba(255, 255, 255, 0.4) 45%,
+		rgba(255, 255, 255, 0.28) 100%
+	) !important;
+	-webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05);
+	backdrop-filter: blur(24px) saturate(180%) contrast(1.05);
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.9),
+		inset 1px 0 0 rgba(255, 255, 255, 0.4),
+		inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+		inset -1px 0 0 rgba(255, 255, 255, 0.15),
+		0 2px 6px rgba(17, 17, 26, 0.06),
+		0 22px 48px rgba(17, 17, 26, 0.12),
+		0 52px 90px rgba(17, 17, 26, 0.08) !important;
+}
+
+.about-stack-link {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	width: 100%;
+	height: 100%;
+	padding: clamp(32px, 4.5vw, 64px);
+	text-decoration: none;
+	color: inherit;
+	border-radius: inherit;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+/* Per-card ambient glow to differentiate the two topics */
+.about-stack-glow {
+	position: absolute;
+	inset: -25%;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.about-stack-card--projects .about-stack-glow {
+	background: radial-gradient(
+		circle at 25% 30%,
+		rgba(255, 170, 90, 0.32),
+		rgba(255, 170, 90, 0) 60%
+	);
+}
+
+.about-stack-card--life .about-stack-glow {
+	background: radial-gradient(
+		circle at 75% 30%,
+		rgba(120, 180, 255, 0.32),
+		rgba(120, 180, 255, 0) 60%
+	);
+}
+
+/* Diagonal specular sweep on hover */
+.about-stack-card::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		120deg,
+		rgba(255, 255, 255, 0) 35%,
+		rgba(255, 255, 255, 0.28) 50%,
+		rgba(255, 255, 255, 0) 65%
+	);
+	mix-blend-mode: overlay;
+	pointer-events: none;
+	transform: translateX(-100%);
+	transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+	z-index: 3;
+}
+
+.about-stack-card:hover::after {
+	transform: translateX(100%);
+}
+
+.about-stack-content {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 80%;
+}
+
+.about-stack-eyebrow {
+	margin: 0;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.64rem;
+	letter-spacing: 0.32em;
+	color: rgba(26, 26, 26, 0.55);
+	text-transform: uppercase;
+}
+
+.about-stack-title {
+	margin: 0;
+	font-family: 'Press Start 2P', monospace;
+	font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+	color: #1a1a1a;
+	letter-spacing: 0.02em;
+	line-height: 1.12;
+}
+
+.about-stack-desc {
+	margin: 0;
+	max-width: 52ch;
+	font-size: 1.02rem;
+	line-height: 1.55;
+	color: rgba(26, 26, 26, 0.72);
+}
+
+.about-stack-cta {
+	margin-top: 6px;
+	align-self: flex-start;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.66rem;
+	letter-spacing: 0.2em;
+	color: #1a1a1a;
+	transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.about-stack-link:hover .about-stack-cta {
+	transform: translateX(8px);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 720px) {
+	.about {
+		width: 100%;
+	}
+}
+
+@media (max-width: 820px) {
+	.about {
+		padding: clamp(58px, 8.5vh, 84px) 14px 80px;
+	}
+
+	/* Tighten ScrollStack's own padding on phones */
+	.about-stack-wrap .scroll-stack-inner {
+		padding-left: 16px !important;
+		padding-right: 16px !important;
+	}
+
+	.about-stack-link {
+		padding: 24px 22px;
+	}
+
+	.about-stack-title {
+		font-size: 1.3rem;
+	}
+
+	.about-stack-desc {
+		font-size: 0.9rem;
+	}
+
+	.about-stack-content {
+		max-width: 100%;
+	}
+
+	.about__subtitle {
+		font-size: 0.92rem;
+	}
+}

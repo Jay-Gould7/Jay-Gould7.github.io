@@ -41,7 +41,7 @@ const cards: BlogCard[] = await Promise.all(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Writings · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Posts · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
 	<body class="blog-index-page">
 		<GlassTopBar client:only="react" />
@@ -50,7 +50,7 @@ const cards: BlogCard[] = await Promise.all(
 		<main class="blog-index">
 			<header class="blog-index__head">
 				<p class="blog-index__eyebrow">WRITINGS</p>
-				<h1 class="blog-index__title">JAY'S BLOG</h1>
+				<h1 class="blog-index__title">POSTS</h1>
 				<p class="blog-index__subtitle">
 					Notes on design, web experiments, and the occasional deep dive.
 				</p>

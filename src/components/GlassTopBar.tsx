@@ -94,7 +94,7 @@ function AboutIcon() {
 
 const NAV_BUTTONS: NavButton[] = [
   { href: '/', label: 'Home', icon: <HomeIcon /> },
-  { href: '/blog', label: 'Blog', icon: <BlogIcon /> },
+  { href: '/blog', label: 'Posts', icon: <BlogIcon /> },
   { href: '/about', label: 'About', icon: <AboutIcon /> },
 ];
 
