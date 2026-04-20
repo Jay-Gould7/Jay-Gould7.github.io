@@ -4,6 +4,7 @@ import GlassTopBar from '../components/GlassTopBar';
 import Hero3D from '../components/Hero3D';
 import Profile from '../components/Profile.astro';
 import SocialsDock from '../components/SocialsDock.astro';
+import StartButton from '../components/StartButton.astro';
 import StackedArticles from '../components/StackedArticles';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { getCollection } from 'astro:content';
@@ -36,6 +37,7 @@ const articleData = posts.map((post: any) => ({
 
             <GlassTopBar client:only="react" />
             <SocialsDock />
+            <StartButton />
 
             <div class="content-overlay">
                 <div class="left-col">
