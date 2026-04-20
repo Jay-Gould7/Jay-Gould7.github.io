@@ -51,9 +51,6 @@ const cards: BlogCard[] = await Promise.all(
 			<header class="blog-index__head">
 				<p class="blog-index__eyebrow">WRITINGS</p>
 				<h1 class="blog-index__title">POSTS</h1>
-				<p class="blog-index__subtitle">
-					Notes on design, web experiments, and the occasional deep dive.
-				</p>
 			</header>
 
 			<BlogList client:load cards={cards} />

@@ -59,6 +59,15 @@ body.about-page *::after {
 	min-height: 100vh;
 }
 
+/* ScrollStack uses a single `pinEnd = endElementTop - vh/2` for every
+   card. The more cards there are, the shorter the last card's pin
+   window becomes. Push the .scroll-stack-end spacer further down so
+   the last card actually gets a visible stacked moment instead of
+   being released ~300px after it pins. */
+.about-stack-wrap .scroll-stack-end {
+	margin-top: 80vh;
+}
+
 /* ScrollStackItem outer div receives this via itemClassName.
    Tailwind's p-12 from the stub component is killed so the
    inner <a> can fill the card and absorb clicks everywhere. */
@@ -127,6 +136,14 @@ body.about-page *::after {
 		circle at 75% 30%,
 		rgba(120, 180, 255, 0.32),
 		rgba(120, 180, 255, 0) 60%
+	);
+}
+
+.about-stack-card--posts .about-stack-glow {
+	background: radial-gradient(
+		circle at 50% 75%,
+		rgba(180, 160, 220, 0.32),
+		rgba(180, 160, 220, 0) 60%
 	);
 }
 

@@ -3,11 +3,13 @@
 import ScrollStack, { ScrollStackItem } from './reactbits/ScrollStack';
 
 /* =========================================================
-   About page — two-card ScrollStack, pinned via window scroll.
-   Colours follow the site theme:
-   - glass surface over #DCDCDC
-   - warm orange (projects) / cool blue (life) ambient glow
-   - Press Start 2P titles, Atkinson body
+   About page — three-card ScrollStack, pinned via window scroll.
+   Order is Projects -> Posts -> Life, i.e. build -> think -> live.
+   Each card is the same glass surface; the ambient glow colour
+   is what tells them apart:
+   - warm orange (projects) — top-left
+   - cool blue    (life)     — top-right
+   - dusk purple  (posts)    — bottom-centre
    The inner <a> absorbs clicks across the full card surface.
    ========================================================= */
 
@@ -32,6 +34,21 @@ export default function AboutStack() {
               <p className="about-stack-desc">
                 A living shelf of experiments, tools and products — from tiny
                 weekend hacks to longer-running products.
+              </p>
+              <span className="about-stack-cta">ENTER →</span>
+            </div>
+          </a>
+        </ScrollStackItem>
+
+        <ScrollStackItem itemClassName="about-stack-card about-stack-card--posts">
+          <a href="/blog/" className="about-stack-link" aria-label="Open posts">
+            <span className="about-stack-glow" aria-hidden="true" />
+            <div className="about-stack-content">
+              <p className="about-stack-eyebrow">POSTS</p>
+              <h2 className="about-stack-title">Writing things down.</h2>
+              <p className="about-stack-desc">
+                Notes on design, web experiments, and the occasional long-form
+                essay when a thought is worth stating in full.
               </p>
               <span className="about-stack-cta">ENTER →</span>
             </div>

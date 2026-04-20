@@ -40,18 +40,70 @@ body.blog-index-page *::after {
 .blog-index__title {
 	margin: 0 0 18px;
 	font-family: 'Press Start 2P', monospace;
-	font-size: clamp(1.9rem, 5.6vw, 3.2rem);
+	font-size: clamp(2.4rem, 7.2vw, 4.6rem);
 	line-height: 1.1;
-	letter-spacing: 0.04em;
-	color: #1a1a1a;
+	letter-spacing: 0.06em;
+	/* Gradient text with a slow warm-orange highlight sweeping
+	   across the pixel-font glyphs. Pairs with the card tone. */
+	background-image: linear-gradient(
+		100deg,
+		#1a1a1a 0%,
+		#1a1a1a 38%,
+		#ff9b5e 50%,
+		#1a1a1a 62%,
+		#1a1a1a 100%
+	);
+	background-size: 220% 100%;
+	background-position: 100% 50%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	-webkit-text-fill-color: transparent;
+	animation: blog-title-enter 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+	/* Stacked text-shadow = pixel-font "stair" depth.
+	   Bottom-right graphite layers give the glyph thickness,
+	   final blurred layer is the soft drop shadow on the page. */
+	text-shadow:
+		1px 1px 0 rgba(26, 26, 26, 0.55),
+		2px 2px 0 rgba(26, 26, 26, 0.45),
+		3px 3px 0 rgba(26, 26, 26, 0.35),
+		4px 4px 0 rgba(26, 26, 26, 0.22),
+		5px 5px 0 rgba(26, 26, 26, 0.12),
+		6px 8px 18px rgba(26, 26, 26, 0.22);
+	transition:
+		background-position 1.8s ease,
+		text-shadow 400ms ease;
 }
 
-.blog-index__subtitle {
-	margin: 0;
-	max-width: 540px;
-	font-size: 1.05rem;
-	line-height: 1.55;
-	color: rgba(26, 26, 26, 0.6);
+.blog-index__title:hover {
+	/* Sweep the warm highlight across once on hover, stopping
+	   at the opposite end; leaving the title sends it back. */
+	background-position: 0% 50%;
+	/* Keep the depth stack, add a subtle two-layer warm halo:
+	   a tight edge warm-up + a wider, almost transparent
+	   ambient wash. No "sun" - just a hint of temperature. */
+	text-shadow:
+		1px 1px 0 rgba(26, 26, 26, 0.55),
+		2px 2px 0 rgba(26, 26, 26, 0.45),
+		3px 3px 0 rgba(26, 26, 26, 0.35),
+		4px 4px 0 rgba(26, 26, 26, 0.22),
+		5px 5px 0 rgba(26, 26, 26, 0.12),
+		6px 8px 18px rgba(26, 26, 26, 0.22),
+		0 0 6px rgba(255, 190, 140, 0.28),
+		0 0 18px rgba(255, 190, 140, 0.1);
+}
+
+@keyframes blog-title-enter {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+		filter: blur(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
 }
 
 .blog-grid {
@@ -300,9 +352,6 @@ body.blog-index-page *::after {
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
 	}
-	.blog-index__subtitle {
-		font-size: 0.9rem;
-	}
 	.blog-card__arrow {
 		opacity: 1;
 		transform: translateX(0);
@@ -338,5 +387,11 @@ body.blog-index-page *::after {
 	.blog-card::before,
 	.blog-card__arrow {
 		transition: none !important;
+	}
+	.blog-index__title {
+		animation: none !important;
+		background: none !important;
+		color: #1a1a1a !important;
+		-webkit-text-fill-color: #1a1a1a !important;
 	}
 }
