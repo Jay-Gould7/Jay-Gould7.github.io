@@ -72,9 +72,16 @@ body.about-page *::after {
    Tailwind's p-12 from the stub component is killed so the
    inner <a> can fill the card and absorb clicks everywhere. */
 .about-stack-card {
-	/* Override Tailwind h-80 so stacking reads as "half-screen
-	   panels being covered", not tiny tiles. */
-	height: clamp(380px, 60vh, 560px) !important;
+	/* Fixed 4:3 landscape ratio. Width is capped at 720px and
+	   centred so the card never grows unreasonably wide on
+	   desktop; min-height keeps mobile from squashing it
+	   below a readable height when the container is narrow. */
+	aspect-ratio: 4 / 3;
+	height: auto !important;
+	min-height: 380px;
+	max-width: 720px;
+	margin-left: auto !important;
+	margin-right: auto !important;
 	padding: 0 !important;
 	border-radius: 32px !important;
 	overflow: hidden;
@@ -178,6 +185,57 @@ body.about-page *::after {
 	max-width: 80%;
 }
 
+/* Projects and Life cards each host a looping video on the right;
+   give the text column room so copy never runs under the media and
+   anchor it to the top-left corner instead of the default bottom-left. */
+.about-stack-card--projects .about-stack-link,
+.about-stack-card--life .about-stack-link {
+	justify-content: flex-start;
+}
+
+.about-stack-card--projects .about-stack-content,
+.about-stack-card--life .about-stack-content {
+	max-width: 44%;
+	/* Stretch the text column to the full card height so the CTA can
+	   use `margin-top: auto` to snap to the bottom-left corner. */
+	height: 100%;
+}
+
+.about-stack-card--projects .about-stack-cta,
+.about-stack-card--life .about-stack-cta {
+	margin-top: auto;
+}
+
+.about-stack-media {
+	position: absolute;
+	right: clamp(16px, 3vw, 32px);
+	top: 50%;
+	transform: translateY(-50%);
+	width: clamp(300px, 56%, 480px);
+	max-height: 96%;
+	object-fit: contain;
+	pointer-events: none;
+	z-index: 2;
+	/* Feathered alpha mask: fully opaque in the centre, fading to
+	   transparent at the edges so the video dissolves into the
+	   glass surface instead of sitting on top of it as a sharp
+	   rectangle. Two linear masks composited in both axes give
+	   a rounded-rectangle falloff that matches the card shape
+	   better than a single ellipse. */
+	-webkit-mask-image:
+		linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%),
+		linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+	mask-image:
+		linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%),
+		linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+	-webkit-mask-composite: source-in;
+	mask-composite: intersect;
+	/* Soften the video tone so it blends with the off-white glass
+	   palette instead of fighting it. */
+	filter: saturate(0.92) contrast(1.02);
+	mix-blend-mode: multiply;
+}
+
 .about-stack-eyebrow {
 	margin: 0;
 	font-family: 'Press Start 2P', monospace;
@@ -237,6 +295,19 @@ body.about-page *::after {
 		padding-right: 16px !important;
 	}
 
+	/* Drop the desktop 4:3 ratio. On narrow screens the ratio +
+	   min-height combination made the card neither a true 4:3 nor
+	   tall enough for the `itemStackDistance` peek band to feel
+	   proportional. Height-based sizing + full width reads as a
+	   proper full-bleed panel and the stack layering becomes clear. */
+	.about-stack-card {
+		aspect-ratio: auto !important;
+		height: clamp(340px, 58vh, 480px) !important;
+		min-height: 0 !important;
+		max-width: none !important;
+		width: 100% !important;
+	}
+
 	.about-stack-link {
 		padding: 24px 22px;
 	}
@@ -251,6 +322,25 @@ body.about-page *::after {
 
 	.about-stack-content {
 		max-width: 100%;
+	}
+
+	.about-stack-card--projects .about-stack-content,
+	.about-stack-card--life .about-stack-content {
+		max-width: 100%;
+	}
+
+	/* On phones the right-side video would crush the copy.
+	   Pin it to the bottom-right corner as a small picture-in-picture
+	   tile so it still plays but doesn't fight for horizontal space. */
+	.about-stack-media {
+		width: 42%;
+		max-width: 180px;
+		max-height: 40%;
+		right: 14px;
+		top: auto;
+		bottom: 14px;
+		transform: none;
+		border-radius: 12px;
 	}
 
 	.about__subtitle {
