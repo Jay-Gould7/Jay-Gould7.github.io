@@ -39,10 +39,48 @@ body.about-page *::after {
 .about__title {
 	margin: 0 0 18px;
 	font-family: 'Press Start 2P', monospace;
-	font-size: clamp(1.9rem, 5.6vw, 3.2rem);
+	/* Bumped up a step from the old "HI, I'M JAY." size because the
+	   one-word title needs more visual weight to fill the header. */
+	font-size: clamp(2.6rem, 8vw, 5rem);
 	line-height: 1.05;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.04em;
 	color: #1a1a1a;
+	/* Layered echo with a live offset.
+	   --echo-scroll is driven by the page-scroll handler in
+	   about.astro; --echo-hover by the :hover rule below. The final
+	   --echo-step takes whichever is larger so the two inputs never
+	   fight — the title just fans further out whenever either input
+	   engages. Each text-shadow is the full word shifted by a
+	   multiple of --echo-step with decreasing alpha, so it reads as
+	   several SPACE copies stacked behind the main glyph rather than
+	   a single glyph with a drop shadow. */
+	--echo-scroll: 0.1em;
+	--echo-hover: 0.1em;
+	--echo-step: max(var(--echo-scroll), var(--echo-hover));
+	text-shadow:
+		calc(var(--echo-step) * 0.8) calc(var(--echo-step) * 0.8) 0 rgba(26, 26, 26, 0.62),
+		calc(var(--echo-step) * 1.8) calc(var(--echo-step) * 1.8) 0 rgba(26, 26, 26, 0.42),
+		calc(var(--echo-step) * 2.8) calc(var(--echo-step) * 2.8) 0 rgba(26, 26, 26, 0.24),
+		calc(var(--echo-step) * 3.8) calc(var(--echo-step) * 3.8) 0 rgba(26, 26, 26, 0.1);
+	transition: text-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1);
+	animation: about-title-enter 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.about__title:hover {
+	--echo-hover: 0.24em;
+}
+
+@keyframes about-title-enter {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+		filter: blur(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
 }
 
 .about__subtitle {
@@ -329,18 +367,18 @@ body.about-page *::after {
 		max-width: 100%;
 	}
 
-	/* On phones the right-side video would crush the copy.
-	   Pin it to the bottom-right corner as a small picture-in-picture
-	   tile so it still plays but doesn't fight for horizontal space. */
+	/* On phones anchor the video's bottom just above the ENTER CTA so
+	   it sits as a hero block inside the lower half of the card while
+	   still leaving the top-left text column uncluttered. */
 	.about-stack-media {
-		width: 42%;
-		max-width: 180px;
-		max-height: 40%;
-		right: 14px;
+		width: 62%;
+		max-width: 280px;
+		max-height: 56%;
+		right: 10px;
 		top: auto;
-		bottom: 14px;
+		bottom: 14%;
 		transform: none;
-		border-radius: 12px;
+		border-radius: 14px;
 	}
 
 	.about__subtitle {

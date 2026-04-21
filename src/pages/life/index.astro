@@ -1,8 +1,32 @@
 ---
+import { getCollection, render } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import GlassTopBar from '../../components/GlassTopBar';
 import SocialsDock from '../../components/SocialsDock.astro';
+import DomeGallery from '../../components/reactbits/DomeGallery';
+import FuzzyText from '../../components/reactbits/FuzzyText';
+import LifeStoryCard from '../../components/LifeStoryCard';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { LIFE_IMAGES } from '../../content/life/life-images';
+
+/* Pull every markdown story out of src/content/life/, newest first.
+   Each entry is rendered inline below the dome, so we pre-resolve its
+   <Content /> component here during SSG. */
+const entries = (await getCollection('life')).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const stories = await Promise.all(
+	entries.map(async (entry) => ({
+		entry,
+		Content: (await render(entry)).Content,
+	})),
+);
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+	year: 'numeric',
+	month: 'short',
+	day: '2-digit',
+});
 ---
 
 <!doctype html>
@@ -10,70 +34,369 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 	<head>
 		<BaseHead title={`Life · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
-	<body class="placeholder-page">
+	<body class="life-page">
 		<GlassTopBar client:only="react" />
 		<SocialsDock />
 
-		<main class="placeholder">
-			<a class="placeholder__back" href="/about/">← BACK</a>
-			<p class="placeholder__eyebrow">LIFE</p>
-			<h1 class="placeholder__title">Through my lens.</h1>
-			<p class="placeholder__subtitle">
-				A photo journal in the making. Places, light, and small moments worth
-				keeping — with a few lines of context for each frame.
-			</p>
+		<a class="life-back" href="/about/">
+			<span class="life-back__arrow" aria-hidden="true">←</span>
+			<span class="life-back__label">BACK</span>
+		</a>
+
+		<div class="life-dome">
+			<DomeGallery
+				client:only="react"
+				images={LIFE_IMAGES}
+				fit={0.8}
+				minRadius={600}
+				maxVerticalRotationDeg={0}
+				segments={34}
+				dragDampening={2}
+				grayscale={false}
+				overlayBlurColor="#DCDCDC"
+			/>
+		</div>
+
+		<main class="life-metadata">
+			<header class="life-meta__head">
+				<h2 class="life-meta__title">
+					<FuzzyText
+						client:only="react"
+						text="METADATA"
+						fontFamily="'Press Start 2P', monospace"
+						fontWeight={400}
+						fontSize="clamp(2.8rem, 11vw, 4.5rem)"
+						color="#1a1a1a"
+						baseIntensity={0.01}
+						hoverIntensity={0.08}
+						enableHover
+					/>
+				</h2>
+				<p class="life-meta__subtitle">STORIES BEHIND THE LENS</p>
+			</header>
+
+			{stories.length > 0 ? (
+				<section class="life-meta__grid">
+					{stories.map(({ entry, Content }) => (
+						<LifeStoryCard
+							client:load
+							image={entry.data.image}
+							alt={entry.data.alt}
+							date={dateFormatter.format(entry.data.date)}
+							title={entry.data.title}
+						>
+							<Content />
+						</LifeStoryCard>
+					))}
+				</section>
+			) : (
+				<p class="life-meta__empty">
+					Drop a <code>.md</code> file into <code>src/content/life/</code> to
+					publish your first story.
+				</p>
+			)}
 		</main>
 
 		<style is:global>
-			body.placeholder-page {
+			/* Life = immersive full-viewport dome gallery, followed by
+			   a METADATA section of markdown stories. Body background
+			   matches /blog, /projects, /about so the sphere edge
+			   blur (overlayBlurColor) melts into the page below it. */
+			body.life-page {
 				margin: 0;
 				min-height: 100vh;
-				background: #DCDCDC;
+				background: #dcdcdc;
 				color: #1a1a1a;
 				font-family: 'Atkinson', system-ui, sans-serif;
 			}
-			.placeholder {
-				max-width: 760px;
+
+			/* Dome holds the first viewport. `position: relative` keeps
+			   the inner <main class="absolute inset-0"> anchored to it
+			   (DomeGallery walks up to the nearest non-static parent)
+			   while `overflow: hidden` clips any sphere bleed before
+			   the METADATA section takes over in-flow. */
+			.life-dome {
+				position: relative;
+				width: 100vw;
+				height: 100vh;
+				overflow: hidden;
+			}
+
+			/* Overlay back button — same animation grammar as
+			   /projects (arrow slides further left, label nudges
+			   right, underline sweeps in from the left). Re-tinted
+			   for the dark dome backdrop. */
+			.life-back {
+				position: fixed;
+				top: clamp(90px, 12vh, 140px);
+				left: clamp(24px, 6vw, 72px);
+				z-index: 50;
+				display: inline-flex;
+				align-items: center;
+				gap: 10px;
+				font-family: 'Press Start 2P', monospace;
+				font-size: 0.6rem;
+				letter-spacing: 0.26em;
+				color: rgba(26, 26, 26, 0.55);
+				text-decoration: none;
+				transition: color 0.25s ease;
+			}
+
+			.life-back__arrow {
+				display: inline-block;
+				font-size: 0.95rem;
+				line-height: 1;
+				transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+
+			.life-back__label {
+				position: relative;
+				display: inline-block;
+				transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+
+			.life-back__label::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: -4px;
+				height: 1px;
+				background: currentColor;
+				transform: scaleX(0);
+				transform-origin: right center;
+				transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+
+			.life-back:hover {
+				color: #1a1a1a;
+			}
+			.life-back:hover .life-back__arrow {
+				transform: translateX(-5px);
+			}
+			.life-back:hover .life-back__label {
+				transform: translateX(2px);
+			}
+			.life-back:hover .life-back__label::after {
+				transform: scaleX(1);
+				transform-origin: left center;
+			}
+
+			/* ---------- METADATA section ---------- */
+
+			/* Container width/padding copy .blog-index verbatim so a
+			   story photo lands at the same column width as a blog
+			   card. Desktop intentionally inherits global.css's
+			   `main { width: 720px }` (only overridden on mobile
+			   below) — that's what gives .blog-index its signature
+			   narrow reading column. */
+			.life-metadata {
+				max-width: 1200px;
 				margin: 0 auto;
 				padding: clamp(80px, 11vh, 120px) clamp(24px, 6vw, 80px) 160px;
+				box-sizing: border-box;
 			}
-			.placeholder__back {
-				display: inline-block;
-				margin-bottom: 40px;
+
+			.life-meta__head {
+				margin-bottom: clamp(40px, 6vh, 72px);
+			}
+
+			/* METADATA title is now rendered by <FuzzyText>, a canvas
+			   component that per-row-shifts the glyphs every frame for
+			   a live static/CRT-noise effect — the CSS here only holds
+			   the h2 as a semantic wrapper and handles the margins. */
+			.life-meta__title {
+				margin: 0 0 14px;
+				line-height: 1;
+				/* FuzzyText reads fontFamily via getComputedStyle when
+				   its own prop is 'inherit'; keeping the declaration
+				   here is also a graceful fallback for the brief
+				   pre-hydration moment before the canvas mounts. */
 				font-family: 'Press Start 2P', monospace;
-				font-size: 0.62rem;
-				letter-spacing: 0.22em;
-				color: rgba(26, 26, 26, 0.6);
-				text-decoration: none;
-				transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s;
 			}
-			.placeholder__back:hover {
-				color: #1a1a1a;
-				transform: translateX(-4px);
+
+			/* FuzzyText renders a <canvas> sized in device pixels from
+			   the measured text + an internal fuzz buffer. We want:
+			     1. `display: block` to kill the inline baseline gap.
+			     2. `max-width: 100%` + `height: auto` so the canvas
+			        visually shrinks if the measured pixel width ever
+			        exceeds the column (narrow phones). This scales the
+			        bitmap which can soften it slightly, but avoids the
+			        bitmap sticking out of the layout.
+			   The prior negative margin for flush-left alignment is
+			   gone on purpose — at larger fontSize it clipped the first
+			   glyph on mobile. */
+			.life-meta__title canvas {
+				display: block;
+				max-width: 100%;
+				height: auto;
 			}
-			.placeholder__eyebrow {
-				margin: 0 0 16px;
+
+			.life-meta__subtitle {
+				margin: 0;
+				font-family: 'Press Start 2P', monospace;
+				font-size: 0.72rem;
+				letter-spacing: 0.32em;
+				color: rgba(26, 26, 26, 0.55);
+			}
+
+			.life-meta__grid {
+				display: flex;
+				flex-direction: column;
+				gap: clamp(28px, 4vh, 48px);
+			}
+
+			.life-meta__empty {
+				padding: 32px;
+				border-radius: 16px;
+				background: rgba(255, 255, 255, 0.55);
+				border: 1px dashed rgba(26, 26, 26, 0.22);
+				font-size: 0.95rem;
+				color: rgba(26, 26, 26, 0.7);
+				line-height: 1.6;
+			}
+
+			.life-meta__empty code {
 				font-family: 'Press Start 2P', monospace;
 				font-size: 0.68rem;
-				letter-spacing: 0.32em;
-				color: rgba(26, 26, 26, 0.5);
+				padding: 2px 6px;
+				border-radius: 4px;
+				background: rgba(26, 26, 26, 0.08);
 			}
-			.placeholder__title {
-				margin: 0 0 18px;
+
+			/* ---------- Story (PixelTransition surface) ---------- */
+
+			/* No card chrome — the photo itself is the whole element.
+			   `autoHeight` on PixelTransition lets the image drive the
+			   height, so each story keeps its native aspect ratio. */
+			.life-story {
+				position: relative;
+				overflow: hidden;
+				display: block;
+				width: 100%;
+				border-radius: 14px;
+				background: rgba(26, 26, 26, 0.04);
+				cursor: pointer;
+			}
+
+			.life-story:focus-visible {
+				outline: 2px solid rgba(26, 26, 26, 0.3);
+				outline-offset: 3px;
+			}
+
+			/* ---- Tailwind utility fallback ----
+			   Project has no Tailwind entry CSS, so PixelTransition's
+			   baked-in utility classes would otherwise no-op. Redeclare
+			   the subset the component relies on, scoped under
+			   .life-story so the rest of the site is unaffected. */
+			.life-story .relative { position: relative; }
+			.life-story .absolute { position: absolute; }
+			.life-story .inset-0 { inset: 0; }
+			.life-story .w-full { width: 100%; }
+			.life-story .h-full { height: 100%; }
+			.life-story .hidden { display: none; }
+			.life-story .block { display: block; }
+			.life-story .pointer-events-none { pointer-events: none; }
+			.life-story .z-\[2\] { z-index: 2; }
+			.life-story .z-\[3\] { z-index: 3; }
+
+			/* Back face: date + title + markdown body, revealed after
+			   the pixel dissolve. Uses the page's off-white tint so the
+			   transition melts into the surrounding background. */
+			.life-story__caption {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				gap: 12px;
+				padding: clamp(20px, 4vw, 48px);
+				background: rgba(245, 245, 245, 0.95);
+				color: #1a1a1a;
+				box-sizing: border-box;
+				overflow-y: auto;
+			}
+
+			.life-story__date {
 				font-family: 'Press Start 2P', monospace;
-				font-size: clamp(1.8rem, 5.2vw, 2.8rem);
-				line-height: 1.1;
+				font-size: 0.58rem;
+				letter-spacing: 0.26em;
+				color: rgba(26, 26, 26, 0.55);
 			}
-			.placeholder__subtitle {
-				max-width: 520px;
-				color: rgba(26, 26, 26, 0.72);
-				line-height: 1.55;
+
+			.life-story__title {
+				margin: 0;
+				font-family: inherit;
+				font-size: clamp(1.3rem, 2vw, 1.7rem);
+				font-weight: 700;
+				line-height: 1.25;
+				letter-spacing: -0.005em;
+				color: #1a1a1a;
 			}
+
+			.life-story__body {
+				font-size: 1rem;
+				line-height: 1.65;
+				color: rgba(26, 26, 26, 0.82);
+			}
+
+			.life-story__body p {
+				margin: 0 0 0.75em;
+			}
+
+			.life-story__body p:last-child {
+				margin-bottom: 0;
+			}
+
+			.life-story__body a {
+				color: #1a1a1a;
+				text-decoration: underline;
+				text-decoration-thickness: 1px;
+				text-underline-offset: 3px;
+			}
+
+			.life-story__body img {
+				max-width: 100%;
+				border-radius: 10px;
+				margin: 10px 0;
+			}
+
+			/* ---------- Responsive ---------- */
+
+			/* Mobile viewports below 720px: stop inheriting main
+			   { width: 720px } so the METADATA section can grow to
+			   full viewport width, matching .blog-index behaviour. */
 			@media (max-width: 720px) {
-				.placeholder { width: 100%; }
+				.life-metadata {
+					width: 100%;
+				}
 			}
+
 			@media (max-width: 820px) {
-				.placeholder { padding: clamp(58px, 8.5vh, 84px) 14px 140px; }
+				.life-metadata {
+					padding: clamp(58px, 8.5vh, 84px) 14px 150px;
+				}
+
+				.life-meta__subtitle {
+					font-size: 0.6rem;
+					letter-spacing: 0.28em;
+				}
+
+				.life-story__caption {
+					padding: 20px;
+					gap: 10px;
+				}
+
+				.life-story__body {
+					font-size: 0.95rem;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.life-metadata {
+					padding-left: 12px;
+					padding-right: 12px;
+				}
 			}
 		</style>
 	</body>

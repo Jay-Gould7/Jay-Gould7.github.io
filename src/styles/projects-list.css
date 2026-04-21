@@ -1,0 +1,311 @@
+/* =========================================================
+   /projects layout.
+   Visual language mirrors /blog: #DCDCDC page, pixel-font
+   metadata, glass card surfaces with a soft drop shadow,
+   and a big stair-shadow LAB wordmark in the page header.
+   ========================================================= */
+
+body.projects-page {
+	margin: 0;
+	min-height: 100vh;
+	background: #dcdcdc;
+	color: #1a1a1a;
+	font-family: 'Atkinson', system-ui, sans-serif;
+}
+
+.projects-main {
+	/* Override global.css `main { width: 720px }` which would otherwise
+	   force a fixed 720px width and overflow narrow phone viewports. */
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: clamp(90px, 12vh, 140px) clamp(24px, 6vw, 72px) 160px;
+	box-sizing: border-box;
+}
+
+/* ---- page header ---- */
+
+.projects-head {
+	margin-bottom: clamp(48px, 8vh, 88px);
+}
+
+/* Text-only back button.
+   No pill, no border — just the mark and the word. Hover opens a
+   tension gap between the two: arrow slides further left, label
+   nudges right, and an underline sweeps in from the right to hint
+   at the "return" direction. The underline uses transform-origin so
+   it also retracts rightwards on mouse-out. */
+.projects-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 40px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.6rem;
+	letter-spacing: 0.26em;
+	color: rgba(26, 26, 26, 0.55);
+	text-decoration: none;
+	transition: color 0.25s ease;
+}
+
+.projects-back__arrow {
+	display: inline-block;
+	font-size: 0.95rem;
+	line-height: 1;
+	transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.projects-back__label {
+	position: relative;
+	display: inline-block;
+	transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.projects-back__label::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -4px;
+	height: 1px;
+	background: currentColor;
+	transform: scaleX(0);
+	transform-origin: right center;
+	transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.projects-back:hover {
+	color: #1a1a1a;
+}
+
+.projects-back:hover .projects-back__arrow {
+	transform: translateX(-5px);
+}
+
+.projects-back:hover .projects-back__label {
+	transform: translateX(2px);
+}
+
+.projects-back:hover .projects-back__label::after {
+	transform: scaleX(1);
+	transform-origin: left center;
+}
+
+.projects-back:focus-visible {
+	outline: none;
+	color: #1a1a1a;
+}
+
+.projects-back:focus-visible .projects-back__label::after {
+	transform: scaleX(1);
+	transform-origin: left center;
+}
+
+.projects-eyebrow {
+	margin: 0 0 18px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.68rem;
+	letter-spacing: 0.32em;
+	color: rgba(26, 26, 26, 0.5);
+}
+
+.projects-title {
+	margin: 0 0 18px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: clamp(3rem, 10vw, 6rem);
+	line-height: 1;
+	letter-spacing: 0.04em;
+	color: #1a1a1a;
+	/* Stair-step depth — same recipe as the /blog title, in a
+	   neutral graphite. 6 monochrome layers + 1 soft drop shadow. */
+	text-shadow:
+		1px 1px 0 rgba(26, 26, 26, 0.62),
+		2px 2px 0 rgba(26, 26, 26, 0.5),
+		3px 3px 0 rgba(26, 26, 26, 0.38),
+		4px 4px 0 rgba(26, 26, 26, 0.26),
+		5px 5px 0 rgba(26, 26, 26, 0.14),
+		8px 10px 22px rgba(26, 26, 26, 0.22);
+}
+
+.projects-subtitle {
+	margin: 0;
+	max-width: 560px;
+	font-size: 1.05rem;
+	line-height: 1.55;
+	color: rgba(26, 26, 26, 0.72);
+}
+
+/* ---- sections ---- */
+
+.projects-section + .projects-section {
+	margin-top: clamp(32px, 5vh, 56px);
+}
+
+.projects-section--grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: clamp(18px, 2.4vw, 28px);
+}
+
+.projects-section--hero {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: clamp(18px, 2.4vw, 28px);
+}
+
+/* ---- card (base) ---- */
+
+.project-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: clamp(22px, 2.6vw, 32px);
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.62);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	box-shadow:
+		0 1px 1px rgba(26, 26, 26, 0.04),
+		0 12px 32px rgba(26, 26, 26, 0.08);
+	text-decoration: none;
+	color: inherit;
+	transition:
+		transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* only elevate when the whole card is itself an anchor */
+a.project-card:hover {
+	transform: translateY(-3px);
+	box-shadow:
+		0 1px 1px rgba(26, 26, 26, 0.04),
+		0 18px 42px rgba(26, 26, 26, 0.12);
+}
+
+.project-card__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+}
+
+.project-card__eyebrow {
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.58rem;
+	letter-spacing: 0.28em;
+	color: rgba(26, 26, 26, 0.55);
+}
+
+.project-card__arrow {
+	font-size: 1.2rem;
+	color: rgba(26, 26, 26, 0.5);
+	transition:
+		transform 0.3s ease,
+		color 0.2s;
+}
+
+a.project-card:hover .project-card__arrow {
+	color: #1a1a1a;
+	transform: translate(2px, -2px);
+}
+
+/* Project names use the body typeface (Atkinson) — the pixel font
+   is reserved for eyebrows/meta/chips so it stays distinctive. */
+.project-card__title {
+	margin: 0;
+	font-family: inherit;
+	font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.005em;
+}
+
+.project-card--hero .project-card__title {
+	font-size: clamp(1.7rem, 3vw, 2.4rem);
+	letter-spacing: -0.01em;
+}
+
+.project-card__desc {
+	margin: 0;
+	font-size: 0.98rem;
+	line-height: 1.55;
+	color: rgba(26, 26, 26, 0.78);
+}
+
+.project-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.56rem;
+	letter-spacing: 0.18em;
+	color: rgba(26, 26, 26, 0.55);
+}
+
+.project-card__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.tag {
+	padding: 5px 10px;
+	border-radius: 999px;
+	background: rgba(26, 26, 26, 0.06);
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.52rem;
+	letter-spacing: 0.15em;
+	color: rgba(26, 26, 26, 0.7);
+}
+
+/* ---- link chips (hero card CTA row) ---- */
+
+.project-card__links {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+.link-chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 9px 14px;
+	border-radius: 999px;
+	background: rgba(26, 26, 26, 0.92);
+	color: #f7f7f7;
+	font-family: 'Press Start 2P', monospace;
+	font-size: 0.56rem;
+	letter-spacing: 0.18em;
+	text-decoration: none;
+	transition:
+		transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+		background 0.2s ease;
+}
+.link-chip:hover {
+	transform: translateY(-2px);
+	background: #1a1a1a;
+}
+
+.link-chip--ghost {
+	background: transparent;
+	color: rgba(26, 26, 26, 0.85);
+	border: 1px solid rgba(26, 26, 26, 0.22);
+}
+.link-chip--ghost:hover {
+	background: rgba(26, 26, 26, 0.08);
+	color: #1a1a1a;
+}
+
+/* ---- responsive tweaks ---- */
+
+@media (max-width: 720px) {
+	.projects-main {
+		padding: clamp(64px, 9vh, 96px) 18px 120px;
+	}
+	.projects-section--grid {
+		grid-template-columns: 1fr;
+	}
+}

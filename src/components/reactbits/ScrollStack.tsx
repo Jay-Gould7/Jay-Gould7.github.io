@@ -64,6 +64,11 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   const cardTopsRef = useRef<number[]>([]);
   const lastTransformsRef = useRef(new Map<number, any>());
   const isUpdatingRef = useRef(false);
+  // When we skip Lenis on touch devices we attach raw scroll/resize
+  // listeners on window. These refs hold their disposers so the
+  // useLayoutEffect cleanup can tear them down uniformly with the
+  // Lenis path.
+  const nativeCleanupRef = useRef<(() => void) | null>(null);
 
   const calculateProgress = useCallback((scrollTop: number, start: number, end: number) => {
     if (scrollTop < start) return 0;
@@ -80,9 +85,14 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
   const getScrollData = useCallback(() => {
     if (useWindowScroll) {
+      // documentElement.clientHeight, not innerHeight. On iOS Safari
+      // the URL bar hide/show mutates innerHeight mid-scroll, which
+      // shifts `stackPositionPx` and `pinEnd` every frame and makes
+      // the cards appear to judder. clientHeight stays pinned to the
+      // layout viewport height regardless of the URL bar state.
       return {
         scrollTop: window.scrollY,
-        containerHeight: window.innerHeight,
+        containerHeight: document.documentElement.clientHeight,
         scrollContainer: document.documentElement
       };
     } else {
@@ -98,8 +108,20 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   const getElementOffset = useCallback(
     (element: HTMLElement) => {
       if (useWindowScroll) {
-        const rect = element.getBoundingClientRect();
-        return rect.top + window.scrollY;
+        // Sum offsetTop up the offsetParent chain -> stable
+        // document-relative Y. Unaffected by transforms, scroll
+        // position, or mobile viewport (address-bar) changes.
+        // `getBoundingClientRect().top + scrollY` was unstable on
+        // iOS Safari: rect and scrollY don't atomically update
+        // during touch drag, so cardTop wobbled a few px per frame
+        // and the whole stack appeared to judder.
+        let top = 0;
+        let cur: HTMLElement | null = element;
+        while (cur) {
+          top += cur.offsetTop;
+          cur = cur.offsetParent as HTMLElement | null;
+        }
+        return top;
       } else {
         return element.offsetTop;
       }
@@ -222,6 +244,42 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
   const setupLenis = useCallback(() => {
     if (useWindowScroll) {
+      // Touch devices: skip Lenis entirely. Its lerp fights native
+      // inertia, `syncTouch` breaks on mobile Safari, and iOS also
+      // suppresses the scroll event during momentum scrolling. We
+      // drive updates from a plain rAF loop polling window.scrollY
+      // instead — it's immune to all three issues.
+      const isTouch =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+      if (isTouch) {
+        // iOS Safari suppresses the `scroll` event during momentum
+        // (finger-released inertia) scroll, so relying on scroll
+        // events alone makes the animation freeze after every flick.
+        // Instead we poll window.scrollY on every animation frame:
+        // cheap, always in sync with what the user sees, and lets
+        // the transform update continuously through momentum.
+        let lastY = -1;
+        let rafId = 0;
+        const tick = () => {
+          const y = window.scrollY;
+          if (y !== lastY) {
+            lastY = y;
+            updateCardTransforms();
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        rafId = requestAnimationFrame(tick);
+
+        // offsetTop is stable across viewport (address-bar) changes,
+        // so we don't need to re-cache card tops on resize anymore.
+        nativeCleanupRef.current = () => {
+          cancelAnimationFrame(rafId);
+        };
+        return;
+      }
+
       const lenis = new Lenis({
         duration: 1.2,
         easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -230,8 +288,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         infinite: false,
         wheelMultiplier: 1,
         lerp: 0.1,
-        syncTouch: true,
-        syncTouchLerp: 0.075
+        syncTouch: false
       });
 
       lenis.on('scroll', handleScroll);
@@ -259,8 +316,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         gestureOrientation: 'vertical',
         wheelMultiplier: 1,
         lerp: 0.1,
-        syncTouch: true,
-        syncTouchLerp: 0.075
+        syncTouch: false
       });
 
       lenis.on('scroll', handleScroll);
@@ -274,7 +330,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       lenisRef.current = lenis;
       return lenis;
     }
-  }, [handleScroll, useWindowScroll]);
+  }, [handleScroll, useWindowScroll, getElementOffset]);
 
   useLayoutEffect(() => {
     if (!useWindowScroll && !scrollerRef.current) return;
@@ -319,6 +375,11 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       }
       if (lenisRef.current) {
         lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+      if (nativeCleanupRef.current) {
+        nativeCleanupRef.current();
+        nativeCleanupRef.current = null;
       }
       stackCompletedRef.current = false;
       cardsRef.current = [];

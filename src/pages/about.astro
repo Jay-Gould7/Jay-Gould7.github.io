@@ -19,14 +19,43 @@ import '../styles/about.css';
 		<main class="about">
 			<header class="about__head">
 				<p class="about__eyebrow">ABOUT</p>
-				<h1 class="about__title">HI, I'M JAY.</h1>
-				<p class="about__subtitle">
-					Designer &amp; tinkerer. I build small web experiments, collect moments
-					through a lens, and write about both. Pick a door below.
-				</p>
+				<h1 class="about__title">SPACE</h1>
 			</header>
 
 			<AboutStack client:load />
 		</main>
+
+		<script>
+			/* Fan the SPACE title's layered echo as the page scrolls.
+			   scrollY 0..480px maps --echo-scroll 0.1em..0.28em;
+			   rAF-throttled so we never touch style more than once per
+			   frame, and `passive: true` keeps scroll perf untouched.
+			   The :hover rule in about.css writes --echo-hover, and
+			   --echo-step = max(scroll, hover), so the two inputs
+			   don't overwrite each other — whichever wants the title
+			   fanned further out wins. */
+			const title = document.querySelector('.about__title');
+			if (title instanceof HTMLElement) {
+				const base = 0.1;
+				const max = 0.28;
+				const range = 480;
+				let rafId: number | null = null;
+				const update = () => {
+					rafId = null;
+					const p = Math.min(1, Math.max(0, window.scrollY / range));
+					const v = base + (max - base) * p;
+					title.style.setProperty('--echo-scroll', `${v.toFixed(3)}em`);
+				};
+				window.addEventListener(
+					'scroll',
+					() => {
+						if (rafId != null) return;
+						rafId = requestAnimationFrame(update);
+					},
+					{ passive: true },
+				);
+				update();
+			}
+		</script>
 	</body>
 </html>

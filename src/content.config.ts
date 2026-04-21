@@ -17,4 +17,20 @@ const blog = defineCollection({
 		}),
 });
 
-export const collections = { blog };
+// Life stories: each markdown file is a photo + caption entry shown
+// below the DomeGallery on /life. The `image` field is a plain URL
+// string (typically an R2 bucket path) so remote-hosted photos work
+// without running through Astro's asset pipeline. The markdown glob
+// intentionally skips life-images.ts so the DomeGallery roster stays
+// separate from the story collection.
+const life = defineCollection({
+	loader: glob({ base: './src/content/life', pattern: '**/*.md' }),
+	schema: z.object({
+		title: z.string().optional(),
+		date: z.coerce.date(),
+		image: z.string(),
+		alt: z.string().optional(),
+	}),
+});
+
+export const collections = { blog, life };

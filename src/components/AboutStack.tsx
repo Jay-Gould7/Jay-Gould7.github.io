@@ -110,6 +110,18 @@ export default function AboutStack() {
 
     const startHandlers = pairs.map(({ video }) => {
       const h = () => {
+        // iOS Safari and some Android Chrome builds refuse to paint a
+        // video frame until play() has been called at least once.
+        // With scroll-scrubbed playback we never otherwise call play,
+        // so the <video> shows the "tap to play" placeholder instead
+        // of the current frame. Kick it once and immediately pause
+        // — `muted` + `playsInline` makes this autoplay-policy-safe.
+        const unlock = video.play();
+        if (unlock && typeof unlock.then === 'function') {
+          unlock.then(() => video.pause()).catch(() => {});
+        } else {
+          video.pause();
+        }
         recompute();
         trySeek(video);
       };
