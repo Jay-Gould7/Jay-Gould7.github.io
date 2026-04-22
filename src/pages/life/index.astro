@@ -72,7 +72,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 						enableHover
 					/>
 				</h2>
-				<p class="life-meta__subtitle">STORIES BEHIND THE LENS</p>
+				<p class="life-meta__subtitle">STORIES BEHIND THE LENS(Click)</p>
 			</header>
 
 			{stories.length > 0 ? (
@@ -216,20 +216,22 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 			}
 
 			/* FuzzyText renders a <canvas> sized in device pixels from
-			   the measured text + an internal fuzz buffer. We want:
-			     1. `display: block` to kill the inline baseline gap.
-			     2. `max-width: 100%` + `height: auto` so the canvas
-			        visually shrinks if the measured pixel width ever
-			        exceeds the column (narrow phones). This scales the
-			        bitmap which can soften it slightly, but avoids the
-			        bitmap sticking out of the layout.
-			   The prior negative margin for flush-left alignment is
-			   gone on purpose — at larger fontSize it clipped the first
-			   glyph on mobile. */
+			   the measured text + an internal fuzz buffer. Behaviour:
+			     1. `display: block` kills the inline baseline gap.
+			     2. `max-width: 100%` clamps the canvas to its column
+			        so it never triggers a horizontal scrollbar on
+			        narrow phones (METADATA at 11vw can overflow).
+			     3. Height is intentionally NOT `auto` — leaving it
+			        undefined means the canvas keeps its pixel-accurate
+			        `height` attribute. When `max-width` kicks in the
+			        bitmap only compresses horizontally (glyphs narrow
+			        a touch) instead of shrinking the whole title.
+			        With `height: auto` the aspect-ratio lock turned
+			        a ~75% width squeeze into a ~75% height squeeze,
+			        which is why mobile looked tiny. */
 			.life-meta__title canvas {
 				display: block;
 				max-width: 100%;
-				height: auto;
 			}
 
 			.life-meta__subtitle {

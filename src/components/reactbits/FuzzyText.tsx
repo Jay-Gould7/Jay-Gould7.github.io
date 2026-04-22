@@ -69,8 +69,26 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
       const computedFontFamily =
         fontFamily === 'inherit' ? window.getComputedStyle(canvas).fontFamily || 'sans-serif' : fontFamily;
 
-      const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
-      const fontString = `${fontWeight} ${fontSizeStr} ${computedFontFamily}`;
+      let numericFontSize: number;
+      if (typeof fontSize === 'number') {
+        numericFontSize = fontSize;
+      } else {
+        const temp = document.createElement('span');
+        temp.style.position = 'absolute';
+        temp.style.visibility = 'hidden';
+        temp.style.pointerEvents = 'none';
+        temp.style.whiteSpace = 'nowrap';
+        temp.style.fontSize = fontSize;
+        temp.style.fontFamily = computedFontFamily;
+        temp.style.fontWeight = String(fontWeight);
+        document.body.appendChild(temp);
+        const computedSize = window.getComputedStyle(temp).fontSize;
+        numericFontSize = Number.parseFloat(computedSize) || 16;
+        document.body.removeChild(temp);
+      }
+
+      const resolvedFontSize = `${numericFontSize}px`;
+      const fontString = `${fontWeight} ${resolvedFontSize} ${computedFontFamily}`;
 
       try {
         await document.fonts.load(fontString);
@@ -78,18 +96,6 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         await document.fonts.ready;
       }
       if (isCancelled) return;
-
-      let numericFontSize: number;
-      if (typeof fontSize === 'number') {
-        numericFontSize = fontSize;
-      } else {
-        const temp = document.createElement('span');
-        temp.style.fontSize = fontSize;
-        document.body.appendChild(temp);
-        const computedSize = window.getComputedStyle(temp).fontSize;
-        numericFontSize = parseFloat(computedSize);
-        document.body.removeChild(temp);
-      }
 
       // Recursively pull the plain text out of `children`. Astro's
       // `client:only` hydration wraps slot content in an <astro-slot>
@@ -124,7 +130,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
       const offCtx = offscreen.getContext('2d');
       if (!offCtx) return;
 
-      offCtx.font = `${fontWeight} ${fontSizeStr} ${computedFontFamily}`;
+      offCtx.font = fontString;
       offCtx.textBaseline = 'alphabetic';
 
       let totalWidth = 0;
@@ -153,7 +159,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
       offscreen.height = tightHeight;
 
       const xOffset = extraWidthBuffer / 2;
-      offCtx.font = `${fontWeight} ${fontSizeStr} ${computedFontFamily}`;
+      offCtx.font = fontString;
       offCtx.textBaseline = 'alphabetic';
 
       if (gradient && Array.isArray(gradient) && gradient.length >= 2) {
@@ -174,8 +180,15 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         offCtx.fillText(text, xOffset - actualLeft, actualAscent);
       }
 
-      const horizontalMargin = fuzzRange + 20;
-      const verticalMargin = direction === 'vertical' || direction === 'both' ? fuzzRange + 10 : 0;
+      const maxIntensity = clickEffect || glitchMode ? 1 : Math.max(baseIntensity, hoverIntensity);
+      const horizontalMargin =
+        direction === 'horizontal' || direction === 'both'
+          ? Math.max(8, Math.ceil(maxIntensity * fuzzRange * 0.5) + 6)
+          : 8;
+      const verticalMargin =
+        direction === 'vertical' || direction === 'both'
+          ? Math.max(6, Math.ceil(maxIntensity * fuzzRange * 0.25) + 4)
+          : 0;
       canvas.width = offscreenWidth + horizontalMargin * 2;
       canvas.height = tightHeight + verticalMargin * 2;
       ctx.translate(horizontalMargin, verticalMargin);
@@ -217,10 +230,10 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         lastFrameTime = timestamp;
 
         ctx.clearRect(
-          -fuzzRange - 20,
-          -fuzzRange - 10,
-          offscreenWidth + 2 * (fuzzRange + 20),
-          tightHeight + 2 * (fuzzRange + 10)
+          -horizontalMargin,
+          -verticalMargin,
+          offscreenWidth + horizontalMargin * 2,
+          tightHeight + verticalMargin * 2
         );
 
         if (isClicking) {
