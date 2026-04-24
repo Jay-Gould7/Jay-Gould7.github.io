@@ -2,7 +2,7 @@
 title: '当你调用一行 LI.FI API 时，你到底信任了谁？—— 跨链交易设计与模式深度解析'
 description: '当你调用一行 LI.FI API 完成跨链时，你其实已经在不知情的情况下，把资产的安全交给了多个不同的信任模型。跨链交易设计与模式深度解析从原理、流程到信任模型，全面剖析主流跨链技术方案。'
 pubDate: '04 24 2026'
-heroImage: '![模式对比.png](https://img.learnblockchain.cn/attachments/2026/04/IEINMtck69eb355857842.png)'
+heroImage: '../../assets/LIFIAPI.png'
 ---
 > 从原理、流程到信任模型，全面剖析主流跨链技术方案
 
